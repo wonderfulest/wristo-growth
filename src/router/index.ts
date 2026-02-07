@@ -49,12 +49,6 @@ const router = createRouter({
       ]
     },
     {
-      path: '/api',
-      name: 'API',
-      component: () => import('@/views/API.vue'),
-      meta: { requiresAuth: true }
-    },
-    {
       path: '/',
       redirect: '/account/dashboard'
     },
