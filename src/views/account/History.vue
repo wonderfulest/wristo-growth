@@ -85,7 +85,7 @@ const formatCurrency = (amount: number): string => {
 
 const formatRate = (rate: number): string => {
   if (!rate && rate !== 0) return '-'
-  return `${(rate).toFixed(2)}%`
+  return `${rate.toFixed(2)}%`
 }
 
 const fetchDeals = async () => {
