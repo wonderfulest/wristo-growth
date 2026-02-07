@@ -1,6 +1,7 @@
 import instance from '@/config/axios'
 import type { ApiResponse, PageResponse } from '@/types/api'
 import type { AppSalesSummaryVO } from '@/types/sales'
+import type { PurchaseRecordVO } from '@/types/purchase'
 
 export interface PromoterAppSalesSummaryPageQueryDTO {
   pageNum?: number
@@ -37,6 +38,7 @@ export interface PromoterDealItemVO {
   commissionAmount: number
   status: string
   createdAt: string
+  order?: PurchaseRecordVO
 }
 
 export const getMyPromoterProfile = (): Promise<ApiResponse<PromoterProfile>> => {

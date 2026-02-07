@@ -9,13 +9,12 @@
     <el-table v-loading="summaryLoading" :data="summaryList" border style="width: 100%" empty-text="暂无数据">
       <el-table-column label="应用" min-width="240">
         <template #default="{ row }">
-          <div class="app-cell">
-            <img v-if="row.app?.garminImageUrl" :src="row.app.garminImageUrl" alt="" class="app-thumb" />
-            <div class="app-info">
-              <div class="app-name">{{ row.app?.name || 'App #' + row.appId }}</div>
-              <div class="app-sub">ID: {{ row.appId }}</div>
-            </div>
-          </div>
+          <AppCell
+            :title="row.app?.name || 'App #' + row.appId"
+            :subtitle="'ID: ' + row.appId"
+            :image-url="row.app?.garminImageUrl"
+            :link-url="row.app?.garminStoreUrl || null"
+          />
         </template>
       </el-table-column>
 
@@ -45,6 +44,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import AppCell from '@/components/common/AppCell.vue'
 import { getMyAppSalesSummaryPage, type PromoterAppSalesSummaryPageQueryDTO } from '@/api/promoter-stats'
 import type { AppSalesSummaryVO, ApiResponse, PageResponse } from '@/types/api'
 

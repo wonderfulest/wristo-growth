@@ -18,23 +18,62 @@
           {{ formatTimestamp(row.createdAt) }}
         </template>
       </el-table-column>
-      <el-table-column prop="orderId" label="订单ID" width="140" />
+      <el-table-column label="产品" min-width="240">
+        <template #default="{ row }">
+          <AppCell
+            :title="productTitle(row)"
+            :subtitle="productSubtitle(row)"
+            :image-url="productImage(row)"
+            :link-url="productLink(row)"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column prop="order.email" label="客户邮箱" min-width="200">
+        <template #default="{ row }">
+          {{ row.order?.email ? maskEmail(row.order.email) : '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="order.partNumber" label="设备" min-width="220">
+        <template #default="{ row }">
+          <DeviceCell :device="deviceForRow(row)" :part-number="row.order?.partNumber || ''" />
+        </template>
+      </el-table-column>
       <el-table-column label="订单金额" width="140" align="right">
         <template #default="{ row }">
           ${{ formatCurrency(row.baseAmount) }}
         </template>
       </el-table-column>
-      <el-table-column label="分佣比例" width="120" align="right">
+      <el-table-column label="分佣比例" width="140" align="right">
         <template #default="{ row }">
           {{ formatRate(row.rate) }}
         </template>
       </el-table-column>
-      <el-table-column label="分佣金额" width="140" align="right">
+      <el-table-column prop="order.origin" label="订单来源" width="120">
         <template #default="{ row }">
-          ${{ formatCurrency(row.commissionAmount) }}
+          {{ row.order?.origin || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态" width="120">
+      <el-table-column prop="order.paymentMethod" label="支付方式" width="120">
+        <template #default="{ row }">
+          {{ row.order?.paymentMethod || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="order.countryCode" label="国家" width="60">
+        <template #default="{ row }">
+          {{ row.order?.countryCode || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="order.isBundle" label="套餐" width="60">
+        <template #default="{ row }">
+          {{ row.order?.isBundle ? '是' : '否' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="order.transactionId" label="交易ID" min-width="260">
+        <template #default="{ row }">
+          {{ row.order?.transactionId || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="status" label="分佣状态" width="120">
         <template #default="{ row }">
           <el-tag>{{ row.status }}</el-tag>
         </template>
@@ -58,8 +97,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import AppCell from '@/components/common/AppCell.vue'
+import DeviceCell from '@/components/common/DeviceCell.vue'
 import { getMyDealsPage, type PromoterDealsPageQueryDTO, type PromoterDealItemVO } from '@/api/promoter-stats'
+import { getGarminDevices } from '@/api/devices'
 import type { ApiResponse, PageResponse } from '@/types/api'
+import type { GarminDeviceBaseVO } from '@/types/device'
 
 const deals = ref<PromoterDealItemVO[]>([])
 const loading = ref(false)
@@ -67,6 +110,8 @@ const error = ref<string | null>(null)
 const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+
+const deviceMap = ref<Record<string, GarminDeviceBaseVO>>({})
 
 const formatTimestamp = (dateString: string): string => {
   const date = new Date(dateString)
@@ -79,13 +124,76 @@ const formatTimestamp = (dateString: string): string => {
   }).replace(/\//g, '-')
 }
 
+const maskEmail = (email: string): string => {
+  const atIndex = email.indexOf('@')
+  if (atIndex <= 0) return email
+  const local = email.slice(0, atIndex)
+  const domain = email.slice(atIndex)
+  if (local.length <= 3) {
+    return '*'.repeat(local.length) + domain
+  }
+  const visible = local.slice(3)
+  return '***' + visible + domain
+}
+
 const formatCurrency = (amount: number): string => {
   return (amount || 0).toFixed(2)
 }
 
 const formatRate = (rate: number): string => {
   if (!rate && rate !== 0) return '-'
-  return `${rate.toFixed(2)}%`
+  return `${rate}%`
+}
+
+const productTitle = (row: PromoterDealItemVO): string => {
+  const order = row.order
+  if (!order) return '-'
+  if (order.isBundle && order.bundle) {
+    return order.bundle.bundleName
+  }
+  if (order.product) {
+    return order.product.name
+  }
+  return '-'
+}
+
+const productSubtitle = (row: PromoterDealItemVO): string => {
+  const order = row.order
+  if (!order) return ''
+  if (order.isBundle) {
+    return `套餐 · App ID: ${order.appId}`
+  }
+  return `App ID: ${order.appId}`
+}
+
+const productImage = (row: PromoterDealItemVO): string | null => {
+  const order = row.order
+  if (!order) return null
+  if (order.isBundle && order.bundle && Array.isArray(order.bundle.products) && order.bundle.products[0]) {
+    return order.bundle.products[0].garminImageUrl || null
+  }
+  if (order.product) {
+    return order.product.garminImageUrl || null
+  }
+  return null
+}
+
+const productLink = (row: PromoterDealItemVO): string | null => {
+  const order = row.order
+  if (!order) return null
+  if (order.isBundle && order.bundle && Array.isArray(order.bundle.products) && order.bundle.products[0]) {
+    return order.bundle.products[0].garminStoreUrl || null
+  }
+  if (order.product) {
+    return order.product.garminStoreUrl || null
+  }
+  return null
+}
+
+const deviceForRow = (row: PromoterDealItemVO): GarminDeviceBaseVO | null => {
+  const pn = row.order?.partNumber
+  if (!pn) return null
+  return deviceMap.value[pn] || null
 }
 
 const fetchDeals = async () => {
@@ -110,6 +218,23 @@ const fetchDeals = async () => {
   }
 }
 
+const fetchDevices = async () => {
+  try {
+    const res = await getGarminDevices()
+    if (res.code === 0 && Array.isArray(res.data)) {
+      const map: Record<string, GarminDeviceBaseVO> = {}
+      res.data.forEach(d => {
+        if (d.partNumber) {
+          map[d.partNumber] = d
+        }
+      })
+      deviceMap.value = map
+    }
+  } catch (e) {
+    // 设备信息失败不阻塞主表
+  }
+}
+
 const handlePageChange = (page: number) => {
   pageNum.value = page
   fetchDeals()
@@ -121,7 +246,10 @@ const handleSizeChange = (size: number) => {
   fetchDeals()
 }
 
-onMounted(fetchDeals)
+onMounted(() => {
+  fetchDeals()
+  fetchDevices()
+})
 </script>
 
 <style scoped>

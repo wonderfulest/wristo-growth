@@ -37,18 +37,22 @@
         <div class="label">收款方式</div>
         <div class="value">{{ profile?.payoutMethod || '-' }}</div>
       </div>
-      <div class="stat-item span-2">
+      <!-- <div class="stat-item span-2">
         <div class="label">收款账号</div>
         <div class="value mono">{{ profile?.payoutAccount || '-' }}</div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { getMyPromoterProfile, type PromoterProfile } from '@/api/promoter-stats'
 import type { ApiResponse } from '@/types/api'
+
+const router = useRouter()
 
 const profile = ref<PromoterProfile | null>(null)
 const loading = ref(false)
@@ -72,12 +76,22 @@ const loadProfile = async () => {
     error.value = null
     const res: ApiResponse<PromoterProfile> = await getMyPromoterProfile()
     if (res.code === 0 && res.data) {
+      // 如果没有配置收款账户，引导用户去资料页补充
+      if (!res.data.payoutAccount) {
+        ElMessage.warning('请先在个人资料中补充收款信息后再查看推广数据')
+        router.push('/account/profile')
+        return
+      }
       profile.value = res.data
     } else {
       error.value = res.msg || '获取推广员资料失败'
+      ElMessage.warning('获取推广员资料失败，请在个人资料中检查并补充收款信息')
+      router.push('/account/profile')
     }
   } catch (e) {
     error.value = '网络错误，请稍后重试'
+    ElMessage.warning('暂时无法获取推广员资料，请稍后在个人资料页重试')
+    router.push('/account/profile')
   } finally {
     loading.value = false
   }
