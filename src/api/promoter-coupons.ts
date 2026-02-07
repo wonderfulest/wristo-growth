@@ -14,7 +14,7 @@ export interface PromoterCouponPageQuery {
 export const fetchPromoterCouponPage = (
   query: PromoterCouponPageQuery
 ): Promise<ApiResponse<PageResponse<PromoterCoupon>>> => {
-  return instance.post('/admin/promoter/coupons/page', query)
+  return instance.post('/prom/coupons/page', query)
 }
 
 // 创建推广口令 DTO（不包含 promoterId，后端绑定当前推广员）
@@ -25,7 +25,7 @@ export interface PromoterCouponCreateDTO {
   discountType: string
   discountValue: number
   commissionRate: number
-  maxUse?: number | null
+  maxUse?: number | 10000
   status?: number | null
   expireAt?: string | null
 }
@@ -41,7 +41,7 @@ export interface PromoterCouponUpdateDTO {
   discountValue?: number
   paddleDiscountId?: string | null
   commissionRate?: number
-  maxUse?: number | null
+  maxUse?: number | 10000
   usedCount?: number | null
   status?: number | null
   expireAt?: string | null

@@ -136,7 +136,7 @@
             <span style="margin-left: 6px">%</span>
           </el-form-item>
           <el-form-item label="最大次数">
-            <el-input-number v-model="editForm.maxUse" :min="0" :max="1000000" />
+            <el-input-number v-model="editForm.maxUse" :min="100" :max="1000000" />
           </el-form-item>
           <el-form-item label="过期时间">
             <el-date-picker
@@ -280,7 +280,7 @@ const openCreate = () => {
     discountType: 'PERCENT',
     discountValue: 10,
     commissionRate: 30,
-    maxUse: null,
+    maxUse: 10000,
     status: 1,
     expireAt: null
   }
