@@ -4,7 +4,7 @@
       <nav class="header-sub-nav">
         <router-link to="/account/dashboard" exact-active-class="active">Dashboard</router-link>
         <router-link to="/account/coupons" exact-active-class="active">Coupons</router-link>
-        <router-link to="/account/history" exact-active-class="active">成交明细</router-link>
+        <router-link to="/account/history" exact-active-class="active">Deals</router-link>
         <router-link to="/account/profile" exact-active-class="active">Profile</router-link>
       </nav>
     </div>

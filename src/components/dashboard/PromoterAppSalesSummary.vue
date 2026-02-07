@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-content">
-    <h3 class="section-title">我的推广应用销售汇总</h3>
+    <h3 class="section-title">App sales (promo)</h3>
 
     <div v-if="summaryError" class="error-message">
-      <p>获取推广应用销售汇总失败：{{ summaryError }}</p>
+      <p>Failed to load app sales: {{ summaryError }}</p>
     </div>
 
-    <el-table v-loading="summaryLoading" :data="summaryList" border style="width: 100%" empty-text="暂无数据">
-      <el-table-column label="应用" min-width="240">
+    <el-table v-loading="summaryLoading" :data="summaryList" border style="width: 100%" empty-text="No data">
+      <el-table-column label="App" min-width="240">
         <template #default="{ row }">
           <AppCell
             :title="row.app?.name || 'App #' + row.appId"
@@ -18,13 +18,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="salesCount" label="销量" width="120" align="right" />
-      <el-table-column label="总金额" width="160" align="right">
+      <el-table-column prop="salesCount" label="Units" width="120" align="right" />
+      <el-table-column label="Revenue" width="160" align="right">
         <template #default="{ row }">
           ${{ formatCurrency(row.totalAmount) }}
         </template>
       </el-table-column>
-      <el-table-column prop="bundleTriggerCount" label="触发套餐次数" width="160" align="right" />
+      <el-table-column prop="bundleTriggerCount" label="Bundle hits" width="160" align="right" />
     </el-table>
 
     <div class="table-footer">
@@ -72,10 +72,10 @@ const fetchSummaryPage = async () => {
       summaryList.value = res.data.list || []
       summaryTotal.value = res.data.total || 0
     } else {
-      summaryError.value = res.msg || '获取推广应用销售汇总失败'
+      summaryError.value = res.msg || 'Failed to load app sales'
     }
   } catch (e) {
-    summaryError.value = '网络错误，请稍后重试'
+    summaryError.value = 'Network error'
     console.error('Error fetching promoter app sales summary:', e)
   } finally {
     summaryLoading.value = false

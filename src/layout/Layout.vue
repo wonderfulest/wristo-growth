@@ -9,7 +9,7 @@
         </div>
         <div class="header-right">
           <router-link to="/account">ACCOUNT</router-link>
-          <a href="#" class="hide-on-mobile">DOCUMENTATION</a>
+          <!-- <a href="#" class="hide-on-mobile">DOCUMENTATION</a> -->
           <router-link to="/api" v-if="hasMerchantRole" class="hide-on-mobile">API</router-link>
         </div>
         <div class="user-profile-dropdown">
@@ -19,7 +19,7 @@
           </div>
           <div class="dropdown-content" v-if="isDropdownOpen">
             <a href="/account/profile">Edit Profile</a>
-            <a href="/account/password">Change Password</a>
+            <!-- <a href="/account/password">Change Password</a> -->
             <a href="#" @click.prevent="handleLogout">Log Out</a>
           </div>
         </div>

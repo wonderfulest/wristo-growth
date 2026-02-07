@@ -1,6 +1,6 @@
 <template>
   <div class="account-page">
-    <h2>个人信息</h2>
+    <h2>Profile</h2>
     <el-form
       v-if="userInfo"
       :model="form"
@@ -8,7 +8,7 @@
       class="profile-form"
       @submit.prevent
     >
-      <el-form-item label="头像">
+      <el-form-item label="Avatar">
         <el-upload
           class="avatar-uploader"
           :show-file-list="false"
@@ -20,39 +20,39 @@
           <el-icon v-else class="avatar-uploader-icon"><i class="el-icon-plus" /></el-icon>
         </el-upload>
       </el-form-item>
-      <el-form-item label="用户名">
-        <el-input v-model="form.username" placeholder="请输入用户名" />
+      <el-form-item label="Username">
+        <el-input v-model="form.username" placeholder="Enter username" />
       </el-form-item>
       <!-- <el-form-item label="昵称">
         <el-input v-model="form.nickname" placeholder="请输入昵称" />
       </el-form-item> -->
-      <el-form-item label="邮箱">
+      <el-form-item label="Email">
         <el-input v-model="form.email" disabled />
       </el-form-item>
-      <el-form-item label="手机号">
+      <el-form-item label="Phone">
         <el-input v-model="form.phone" disabled />
       </el-form-item>
-      <el-form-item label="注册时间">
+      <el-form-item label="Joined at">
         <el-input v-model="form.createdAt" disabled />
       </el-form-item>
 
-      <el-divider content-position="left">支付信息</el-divider>
+      <el-divider content-position="left">Payout</el-divider>
       
-      <el-form-item label="支付方式">
-        <el-select v-model="form.payoutMethod" placeholder="请选择支付方式" style="width: 100%">
-          <el-option label="支付宝 (国内，到账人民币，2.5%汇损)" value="alipay" />
-          <el-option label="PayPal (海外，到账美元，无汇损)" value="paypal" />
+      <el-form-item label="Payout method">
+        <el-select v-model="form.payoutMethod" placeholder="Select payout method" style="width: 100%">
+          <el-option label="Alipay" value="alipay" />
+          <el-option label="PayPal" value="paypal" />
           <!-- <el-option label="微信" value="wechat" /> -->
           <!-- <el-option label="银行卡" value="bank" /> -->
         </el-select>
       </el-form-item>
       
-      <el-form-item label="支付账户">
-        <el-input v-model="form.payoutAccount" placeholder="请输入支付账户" />
+      <el-form-item label="Payout account">
+        <el-input v-model="form.payoutAccount" placeholder="Enter payout account" />
       </el-form-item>
       
       <el-form-item>
-        <el-button type="primary" :loading="saving" @click="handleSave">保存</el-button>
+        <el-button type="primary" :loading="saving" @click="handleSave">Save</el-button>
       </el-form-item>
     </el-form>
     <el-skeleton v-else :rows="6" animated />
@@ -101,10 +101,10 @@ async function fetchUserInfo() {
         payoutAccount: res.data.payoutAccount || ''
       })
     } else {
-      ElMessage.error(res.msg || '获取用户信息失败')
+      ElMessage.error(res.msg || 'Failed to load user')
     }
   } catch (e) {
-    ElMessage.error('获取用户信息失败')
+    ElMessage.error('Failed to load user')
   } finally {
     loading.value = false
   }
@@ -113,11 +113,11 @@ async function fetchUserInfo() {
 function beforeAvatarUpload(file: File) {
   const isImage = file.type.startsWith('image/')
   if (!isImage) {
-    ElMessage.error('只能上传图片文件')
+    ElMessage.error('Image only')
   }
   const isLt2M = file.size / 1024 / 1024 < 2
   if (!isLt2M) {
-    ElMessage.error('图片大小不能超过 2MB!')
+    ElMessage.error('Image must be < 2MB')
   }
   return isImage && isLt2M
 }
@@ -129,12 +129,12 @@ async function handleAvatarChange(fileObj: any) {
     const res: ApiResponse<string> = await uploadAvatar(file)
     if (res.code === 0) {
       form.avatar = res.data || ''
-      ElMessage.success('头像上传成功')
+      ElMessage.success('Avatar updated')
     } else {
-      ElMessage.error(res.msg || '头像上传失败')
+      ElMessage.error(res.msg || 'Avatar upload failed')
     }
   } catch (e) {
-    ElMessage.error('头像上传失败')
+    ElMessage.error('Avatar upload failed')
   }
 }
 
@@ -150,13 +150,13 @@ async function handleSave() {
     }
     const res: ApiResponse<boolean> = await updatePromUserInfo(updateData)
     if (res.code === 0) {
-      ElMessage.success('保存成功')
+      ElMessage.success('Saved')
       await fetchUserInfo()
     } else {
-      ElMessage.error(res.msg || '保存失败')
+      ElMessage.error(res.msg || 'Save failed')
     }
   } catch (e) {
-    ElMessage.error('保存失败')
+    ElMessage.error('Save failed')
   } finally {
     saving.value = false
   }

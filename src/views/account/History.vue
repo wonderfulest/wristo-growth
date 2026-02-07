@@ -1,9 +1,9 @@
 <template>
   <div class="account-page">
-    <h2 class="page-title">我的推广成交明细</h2>
+    <h2 class="page-title">Promoter deals</h2>
 
     <div v-if="error" class="error-message">
-      获取成交明细失败：{{ error }}
+      Failed to load deals: {{ error }}
     </div>
 
     <el-table
@@ -11,14 +11,14 @@
       :data="deals"
       border
       style="width: 100%"
-      empty-text="暂无成交记录"
+      empty-text="No deals"
     >
-      <el-table-column prop="createdAt" label="成交时间" min-width="180">
+      <el-table-column prop="createdAt" label="Time" min-width="180">
         <template #default="{ row }">
           {{ formatTimestamp(row.createdAt) }}
         </template>
       </el-table-column>
-      <el-table-column label="产品" min-width="240">
+      <el-table-column label="Product" min-width="240">
         <template #default="{ row }">
           <AppCell
             :title="productTitle(row)"
@@ -28,52 +28,52 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="order.email" label="客户邮箱" min-width="200">
+      <el-table-column prop="order.email" label="Customer" min-width="200">
         <template #default="{ row }">
           {{ row.order?.email ? maskEmail(row.order.email) : '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.partNumber" label="设备" min-width="220">
+      <el-table-column prop="order.partNumber" label="Device" min-width="220">
         <template #default="{ row }">
           <DeviceCell :device="deviceForRow(row)" :part-number="row.order?.partNumber || ''" />
         </template>
       </el-table-column>
-      <el-table-column label="订单金额" width="140" align="right">
+      <el-table-column label="Order" width="140" align="right">
         <template #default="{ row }">
           ${{ formatCurrency(row.baseAmount) }}
         </template>
       </el-table-column>
-      <el-table-column label="分佣比例" width="140" align="right">
+      <el-table-column label="Rate" width="140" align="right">
         <template #default="{ row }">
           {{ formatRate(row.rate) }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.origin" label="订单来源" width="120">
+      <el-table-column prop="order.origin" label="Source" width="120">
         <template #default="{ row }">
           {{ row.order?.origin || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.paymentMethod" label="支付方式" width="120">
+      <el-table-column prop="order.paymentMethod" label="Pay" width="120">
         <template #default="{ row }">
           {{ row.order?.paymentMethod || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.countryCode" label="国家" width="60">
+      <el-table-column prop="order.countryCode" label="Country" width="60">
         <template #default="{ row }">
           {{ row.order?.countryCode || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.isBundle" label="套餐" width="60">
+      <el-table-column prop="order.isBundle" label="Bundle" width="60">
         <template #default="{ row }">
           {{ row.order?.isBundle ? '是' : '否' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.transactionId" label="交易ID" min-width="260">
+      <el-table-column prop="order.transactionId" label="Txn ID" min-width="260">
         <template #default="{ row }">
           {{ row.order?.transactionId || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="分佣状态" width="120">
+      <el-table-column prop="status" label="Status" width="120">
         <template #default="{ row }">
           <el-tag>{{ row.status }}</el-tag>
         </template>
@@ -161,7 +161,7 @@ const productSubtitle = (row: PromoterDealItemVO): string => {
   const order = row.order
   if (!order) return ''
   if (order.isBundle) {
-    return `套餐 · App ID: ${order.appId}`
+    return `Bundle · App ID: ${order.appId}`
   }
   return `App ID: ${order.appId}`
 }
@@ -209,10 +209,10 @@ const fetchDeals = async () => {
       deals.value = res.data.list || []
       total.value = res.data.total || 0
     } else {
-      error.value = res.msg || '获取成交明细失败'
+      error.value = res.msg || 'Failed to load deals'
     }
   } catch (e) {
-    error.value = '网络错误，请稍后重试'
+    error.value = 'Network error'
   } finally {
     loading.value = false
   }

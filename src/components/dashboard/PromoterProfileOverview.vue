@@ -2,8 +2,8 @@
   <div class="promoter-profile-card">
     <div class="header">
       <div>
-        <h2>我的推广员资料</h2>
-        <p class="subtitle">整体分佣数据概览</p>
+        <h2>Promoter profile</h2>
+        <p class="subtitle">Overview</p>
       </div>
       <el-tag :type="statusTagType" effect="plain">{{ profile?.status || 'unknown' }}</el-tag>
     </div>
@@ -14,27 +14,27 @@
 
     <div v-else class="stats-grid" v-loading="loading">
       <div class="stat-item">
-        <div class="label">累计收入</div>
+        <div class="label">Total earned</div>
         <div class="value">${{ formatCurrency(profile?.totalIncome || 0) }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">累计提现</div>
+        <div class="label">Total paid</div>
         <div class="value">${{ formatCurrency(profile?.totalWithdraw || 0) }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">当前余额</div>
+        <div class="label">Balance</div>
         <div class="value highlight">${{ formatCurrency(profile?.balance || 0) }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">等级</div>
+        <div class="label">Level</div>
         <div class="value">Lv.{{ profile?.level ?? '-' }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">结算方式</div>
+        <div class="label">Settle type</div>
         <div class="value">{{ profile?.settleType || '-' }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">收款方式</div>
+        <div class="label">Payout method</div>
         <div class="value">{{ profile?.payoutMethod || '-' }}</div>
       </div>
       <!-- <div class="stat-item span-2">
@@ -76,21 +76,21 @@ const loadProfile = async () => {
     error.value = null
     const res: ApiResponse<PromoterProfile> = await getMyPromoterProfile()
     if (res.code === 0 && res.data) {
-      // 如果没有配置收款账户，引导用户去资料页补充
+      // No payout account: redirect to profile to complete info
       if (!res.data.payoutAccount) {
-        ElMessage.warning('请先在个人资料中补充收款信息后再查看推广数据')
+        ElMessage.warning('Please add payout info in Profile first')
         router.push('/account/profile')
         return
       }
       profile.value = res.data
     } else {
-      error.value = res.msg || '获取推广员资料失败'
-      ElMessage.warning('获取推广员资料失败，请在个人资料中检查并补充收款信息')
+      error.value = res.msg || 'Failed to load promoter profile'
+      ElMessage.warning('Failed to load promoter profile, check payout info in Profile')
       router.push('/account/profile')
     }
   } catch (e) {
-    error.value = '网络错误，请稍后重试'
-    ElMessage.warning('暂时无法获取推广员资料，请稍后在个人资料页重试')
+    error.value = 'Network error'
+    ElMessage.warning('Network error, please try again in Profile later')
     router.push('/account/profile')
   } finally {
     loading.value = false
@@ -104,7 +104,6 @@ onMounted(loadProfile)
 .promoter-profile-card {
   padding: 24px;
   background: #fff;
-  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
