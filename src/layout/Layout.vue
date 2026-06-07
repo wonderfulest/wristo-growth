@@ -4,8 +4,7 @@
     <header class="header">
       <div class="header-inner">
         <div class="logo">
-          <span class="logo-icon">W</span>
-          <span class="logo-text">risto</span>
+          <img class="logo-image" src="https://cdn.wristo.io/brands/wristo-logo/svg/wristo-logo-horizontal.svg" alt="Wristo" />
         </div>
         <div class="header-right">
           <router-link to="/account">ACCOUNT</router-link>
@@ -13,9 +12,9 @@
           <router-link to="/api" v-if="hasMerchantRole" class="hide-on-mobile">API</router-link>
         </div>
         <div class="user-profile-dropdown">
-          <div class="user-profile-name" @click="toggleDropdown">
-            {{ userStore.userInfo?.username }}
-            <span class="dropdown-arrow">▼</span>
+          <div class="user-avatar-container" @click="toggleDropdown">
+            <img :src="userAvatar" class="user-avatar" alt="user avatar" />
+            <span class="user-profile-name">{{ displayName }}</span>
           </div>
           <div class="dropdown-content" v-if="isDropdownOpen">
             <a href="/account/profile">Edit Profile</a>
@@ -33,7 +32,7 @@
     <footer class="footer">
       <div class="footer-inner">
         <div class="footer-left">
-          <span class="footer-icon">🐦</span>
+          <img class="footer-mark" src="https://cdn.wristo.io/brands/wristo-logo/svg/wristo-mark.svg" alt="" aria-hidden="true" />
           <span> Wristo 2025</span>
         </div>
         <div class="footer-links">
@@ -53,6 +52,9 @@
 import { useUserStore } from '@/store/user'
 import { computed, ref } from 'vue'
 const userStore = useUserStore()
+const defaultAvatar = 'https://cdn.wristo.io/test/avatar/561aae25-41bd-47ab-974e-7231f5a850e8.png'
+const userAvatar = computed(() => userStore.userInfo?.avatar || defaultAvatar)
+const displayName = computed(() => userStore.userInfo?.nickname || userStore.userInfo?.username || 'Wristo')
 const ssoBaseUrl = import.meta.env.VITE_SSO_LOGIN_URL
 const redirectUri = import.meta.env.VITE_SSO_REDIRECT_URI
 const handleLogout = async () => {
@@ -120,19 +122,12 @@ const toggleDropdown = () => {
 .logo {
   display: flex;
   align-items: center;
-  font-size: 2.2rem;
-  font-weight: bold;
+  flex: 0 0 auto;
 }
-.logo-icon {
-  color: $color-success;
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-right: 6px;
-}
-.logo-text {
-  color: $color-link;
-  font-weight: 700;
-  font-size: 2.2rem;
+.logo-image {
+  display: block;
+  width: 132px;
+  height: auto;
 }
 .header-right {
   display: flex;
@@ -181,8 +176,9 @@ const toggleDropdown = () => {
   align-items: center;
   gap: 8px;
 }
-.footer-icon {
-  font-size: $font-size-sm;
+.footer-mark {
+  width: 18px;
+  height: 18px;
 }
 .footer-links {
   display: flex;
@@ -231,6 +227,37 @@ const toggleDropdown = () => {
 .user-profile-dropdown {
   position: relative;
 }
+.user-avatar-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.user-avatar-container:hover {
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+.user-profile-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: $color-link;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
 
 /* Mobile responsiveness */
 .hide-on-mobile {
@@ -243,13 +270,16 @@ const toggleDropdown = () => {
     padding: 0 16px;
   }
   .logo {
-    font-size: 1.6rem;
+    width: 104px;
   }
-  .logo-icon, .logo-text {
-    font-size: 1.6rem;
+  .logo-image {
+    width: 104px;
   }
   .header-right {
     gap: 12px;
+  }
+  .user-profile-name {
+    display: none;
   }
   .header-right a, .header-right :deep(a) {
     font-size: 0.95rem;
