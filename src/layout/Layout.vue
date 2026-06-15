@@ -152,12 +152,14 @@ const toggleDropdown = () => {
   min-height: 0; /* allow flex item to shrink to avoid pushing footer */
 }
 .footer {
-  background: $color-footer-bg;
-  padding: 8px 0;
+  background: rgba(255, 255, 255, 0.92);
+  border-top: 1px solid rgba(17, 24, 39, 0.08);
+  box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.8);
+  padding: 14px 0;
   width: 100%;
   position: static; /* rely on flexbox to pin to bottom */
   margin-top: auto;
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
   font-size: $font-size-xs;
 }
 .footer-inner {
@@ -166,6 +168,7 @@ const toggleDropdown = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
   padding: 0 32px;
   font-size: $font-size-sm;
   color: $color-footer-text;
@@ -173,27 +176,45 @@ const toggleDropdown = () => {
 .footer-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  color: #4b5563;
+  font-weight: 600;
 }
 .footer-mark {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
+  padding: 3px;
+  border: 1px solid rgba(25, 179, 107, 0.18);
+  border-radius: 999px;
+  background: #f0fdf7;
 }
 .footer-links {
   display: flex;
-  gap: 18px;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .footer-links a {
-  color: $color-footer-text;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #4b5563;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
-.footer-links a:hover {
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  background: rgba(25, 179, 107, 0.1);
   color: $color-success;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(25, 179, 107, 0.14);
 }
 .footer-right {
-  font-weight: bold;
-  color: $color-footer-text;
+  font-weight: 700;
+  color: #374151;
 }
 .dropdown-content {
   display: flex;
@@ -290,7 +311,7 @@ const toggleDropdown = () => {
     padding: 0 16px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 12px;
   }
   .global-layout {
     overflow-x: hidden;
@@ -298,7 +319,11 @@ const toggleDropdown = () => {
   }
   .footer {
     position: static; /* prevent jumping on mobile */
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding: 16px 0;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  .footer-links {
+    justify-content: flex-start;
   }
 }
 </style>
