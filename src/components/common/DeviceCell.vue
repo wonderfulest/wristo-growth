@@ -30,9 +30,8 @@ defineProps<Props>()
 .device-thumb {
   width: 40px;
   height: 40px;
-  border-radius: 6px;
-  object-fit: cover;
-  border: 1px solid #e9ecef;
+  object-fit: contain;
+  background: transparent;
 }
 
 .device-info {
@@ -42,11 +41,11 @@ defineProps<Props>()
 
 .device-name {
   font-weight: 500;
-  color: #212529;
+  color: var(--el-text-color-primary);
 }
 
 .device-sub {
   font-size: 12px;
-  color: #6c757d;
+  color: var(--el-text-color-secondary);
 }
 </style>
