@@ -1,3 +1,4 @@
+import { installUserActivity } from './utils/userActivity'
 import { createApp } from 'vue'
 import './assets/styles/global.scss'
 import './style.css'
@@ -19,3 +20,5 @@ app.use(ElementPlus)
 app.mount('#app')
 
 
+
+installUserActivity()
