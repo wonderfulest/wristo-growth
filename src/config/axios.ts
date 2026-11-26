@@ -59,7 +59,9 @@ instance.interceptors.response.use(
   },
   error => {
     const status = error.response?.status
-    if (status === 401 || status === 403) {
+    if (status === 403 && error.response?.data?.code === 'PROMOTION_ACCESS_REQUIRED') {
+      ElMessage.warning(t('推广资格尚未确认。刚登录请稍后重试；旧会话可重新登录。', 'Promotion access is not available yet. Retry after signing in, or renew an older session.'))
+    } else if (status === 401 || status === 403) {
       recoverSession()
     } else {
       ElMessage.error(t('网络错误，请稍后重试', 'Network error. Try again later.'))

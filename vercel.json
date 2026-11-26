@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/api/prom/offline/profile", "destination": "https://api.wristo.cn/api/prom/offline/profile" },
+    { "source": "/api/prom/offline/qrcode", "destination": "https://api.wristo.cn/api/prom/offline/qrcode" },
     {
       "source": "/api/(.*)",
       "destination": "https://api.wristo.io/api/$1"

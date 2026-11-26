@@ -1,19 +1,21 @@
 import instance from '@/config/axios'
 import type { ApiResponse } from '@/types/api'
 
+const domesticMaterials = { baseURL: 'https://api.wristo.cn/api', withCredentials: false }
+
 export interface OfflineProfile {
   code: string
   discountPercent: number
 }
 
 export const fetchOfflineProfile = (): Promise<ApiResponse<OfflineProfile>> =>
-  instance.get('/prom/offline/profile')
+  instance.get('/prom/offline/profile', domesticMaterials)
 
 export const saveOfflineDiscount = (discountPercent: number): Promise<ApiResponse<OfflineProfile>> =>
-  instance.put('/prom/offline/profile', { discountPercent })
+  instance.put('/prom/offline/profile', { discountPercent }, domesticMaterials)
 
 export const downloadOfflineQr = (): Promise<Blob> =>
-  instance.get('/prom/offline/qrcode', { responseType: 'blob' })
+  instance.get('/prom/offline/qrcode', { ...domesticMaterials, responseType: 'blob' })
 
 export interface OfflineEarnings {
   boundUsers: number
