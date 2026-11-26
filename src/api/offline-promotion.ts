@@ -24,7 +24,7 @@ export interface OfflineEarnings {
     orderNo: string
     paidAmountFen: number
     commissionFen: number
-    status: 'EARNED' | 'REVERSED'
+    status: 'EARNED' | 'REVERSED' | 'TEST_EARNED'
     paidAt: string | null
     buyerNickname?: string | null
     productName?: string | null
@@ -37,6 +37,7 @@ export const fetchOfflineEarnings = (page: number): Promise<ApiResponse<OfflineE
 export interface Downline {
   userId: number
   name: string
+  email?: string | null
   boundAt: string
 }
 

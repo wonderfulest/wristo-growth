@@ -20,12 +20,13 @@
           </span>
           <div class="description">
             <h3>{{ item.productName || t('会员订单', 'Membership order') }}</h3>
+            <p v-if="item.status === 'TEST_EARNED'">{{ item.orderNo }}</p>
             <p v-if="item.paidAt"><time :datetime="item.paidAt">{{ displayTime(item.paidAt) }}</time></p>
             <p v-if="item.status === 'REVERSED'">{{ t('原佣金 ¥', 'Original commission ¥') }}{{ amount(item.commissionFen) }}</p>
           </div>
           <div class="entry-value" :class="{ reversed: item.status === 'REVERSED' }">
             <strong>{{ item.status === 'REVERSED' ? '¥0.00' : '+¥' + amount(item.commissionFen) }}</strong>
-            <span>{{ item.status === 'REVERSED' ? t('已冲回', 'Reversed') : t('已计入', 'Credited') }}</span>
+            <span>{{ item.status === 'REVERSED' ? t('已冲回', 'Reversed') : item.status === 'TEST_EARNED' ? t('测试佣金 · 不结算', 'Test commission · excluded from payout') : t('已计入', 'Credited') }}</span>
           </div>
         </li>
       </ul>

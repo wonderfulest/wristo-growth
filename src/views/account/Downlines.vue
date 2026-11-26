@@ -17,6 +17,9 @@
       <el-table-column :label="t('顾客', 'Customer')" min-width="160">
         <template #default="{ row }">{{ row.name || t('顾客', 'Customer') }} · {{ row.userId }}</template>
       </el-table-column>
+      <el-table-column :label="t('邮箱', 'Email')" min-width="200">
+        <template #default="{ row }">{{ row.email || '—' }}</template>
+      </el-table-column>
       <el-table-column :label="t('绑定时间', 'Referred on')" min-width="170"><template #default="{ row }">{{ displayTime(row.boundAt) }}</template></el-table-column>
       <el-table-column :label="t('订单', 'Orders')" width="110">
         <template #default="{ row }"><el-button link type="primary" @click="filterOrders(row)">{{ t('查看订单', 'View orders') }}</el-button></template>
@@ -31,6 +34,7 @@
             :aria-label="t('查看' + (buyer.name || '顾客') + '的订单', 'View orders for ' + (buyer.name || 'customer'))" @click="openCustomer(buyer)">
             <span class="initial" aria-hidden="true">{{ initial(buyer.name) }}</span>
             <span class="buyer-info"><strong>{{ buyer.name || t('顾客', 'Customer') }}</strong>
+              <span v-if="buyer.email">{{ buyer.email }}</span>
               <span>{{ t('绑定时间：', 'Referred on: ') }}<time :datetime="buyer.boundAt">{{ dateOnly(buyer.boundAt) }}</time></span>
             </span>
             <ArrowRight aria-hidden="true" />
