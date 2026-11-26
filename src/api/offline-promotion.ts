@@ -12,8 +12,8 @@ export const fetchOfflineProfile = (): Promise<ApiResponse<OfflineProfile>> =>
 export const saveOfflineDiscount = (discountPercent: number): Promise<ApiResponse<OfflineProfile>> =>
   instance.put('/prom/offline/profile', { discountPercent })
 
-export const downloadOfflineQr = (trial = false): Promise<Blob> =>
-  instance.get(trial ? '/prom/offline/qrcode/trial' : '/prom/offline/qrcode', { responseType: 'blob' })
+export const downloadOfflineQr = (): Promise<Blob> =>
+  instance.get('/prom/offline/qrcode', { responseType: 'blob' })
 
 export interface OfflineEarnings {
   boundUsers: number

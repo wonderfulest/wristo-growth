@@ -7,11 +7,6 @@
     </div>
     <template v-else>
       <template v-if="!checkout">
-        <div class="qr-versions" role="group" :aria-label="t('选择小程序版本', 'Select mini program version')">
-          <button :aria-pressed="!trial" @click="selectVersion(false)">{{ t('正式版小程序码', 'Live mini program QR code') }}</button>
-          <button :aria-pressed="trial" @click="selectVersion(true)">{{ t('体验版小程序码', 'Trial mini program QR code') }}</button>
-        </div>
-        <p v-if="trial" class="hint">{{ t('请使用有体验权限的微信扫码。', 'Scan with a WeChat account that has trial access.') }}</p>
         <div class="qr-area" :aria-busy="loadingQr">
           <button v-if="qrUrl" class="qr-image" :aria-label="t('预览', 'Preview ') + qrLabel" @click="preview?.showModal()">
             <img :src="qrUrl" :alt="qrLabel" @error="clearQr" />
@@ -86,8 +81,7 @@ import { downloadOfflineQr, fetchOfflineProfile, saveOfflineDiscount, type Offli
 const props = defineProps<{ checkout?: boolean }>()
 const profile = ref<OfflineProfile>()
 const loading = ref(true)
-const trial = ref(false)
-const qrLabel = computed(() => trial.value ? t('体验版小程序码', 'Trial mini program QR code') : t('正式版小程序码', 'Live mini program QR code'))
+const qrLabel = computed(() => t('小程序码', 'Mini program QR code'))
 let requestId = 0
 const qrUrl = ref('')
 const loadingQr = ref(false)
@@ -111,20 +105,12 @@ async function loadProfile() {
 
 watch(() => props.checkout, checkout => { if (!checkout && profile.value) void loadQr() })
 
-function selectVersion(next: boolean) {
-  if (trial.value === next) return
-  trial.value = next
-  clearQr()
-  loadingQr.value = false
-  void loadQr()
-}
-
 async function loadQr() {
   if (loadingQr.value || qrUrl.value) return
   const id = ++requestId
   loadingQr.value = true
   try {
-    const blob = await downloadOfflineQr(trial.value)
+    const blob = await downloadOfflineQr()
     if (!disposed && id === requestId) qrUrl.value = URL.createObjectURL(blob)
   } catch { /* Keep the retry button available. */ }
   finally { if (id === requestId) loadingQr.value = false }
@@ -139,7 +125,7 @@ function downloadQr() {
   if (!qrUrl.value || !profile.value) return
   const link = document.createElement('a')
   link.href = qrUrl.value
-  link.download = 'wristo-' + profile.value.code + (trial.value ? '-trial.png' : '.png')
+  link.download = 'wristo-' + profile.value.code + '.png'
   document.body.append(link)
   link.click()
   link.remove()
@@ -199,9 +185,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.qr-versions { display: flex; margin: 16px 0 0; padding: 3px; background: #eff4f1; border-radius: 12px; }
-.qr-versions button { flex: 1; }
-.qr-versions button[aria-pressed="true"] { background: #086642; color: white; font-weight: 650; }
 .materials { --green: #086642; max-width: 510px; padding: 24px; margin: 0 auto; border-radius: 16px; color: #18201c; background: white; }
 h1, h2, h3, dl, dd { margin: 0; }
 h1 { font-size: 1.5rem; }
