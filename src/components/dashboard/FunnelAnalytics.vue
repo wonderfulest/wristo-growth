@@ -1,14 +1,14 @@
 <template>
   <div class="dashboard-content">
-    <h3 class="section-title">漏斗统计</h3>
+    <h3 class="section-title">{{ t('漏斗统计', 'Conversion funnel') }}</h3>
 
     <div class="funnel-toolbar">
       <el-radio-group v-model="rangeType" size="small" @change="handleRangeTypeChange">
-        <el-radio-button :value="'1d'">近1天</el-radio-button>
-        <el-radio-button :value="'3d'">近3天</el-radio-button>
-        <el-radio-button :value="'7d'">近一周</el-radio-button>
-        <el-radio-button :value="'30d'">近一月</el-radio-button>
-        <el-radio-button :value="'custom'">自定义</el-radio-button>
+        <el-radio-button :value="'1d'">{{ t('近1天', 'Last day') }}</el-radio-button>
+        <el-radio-button :value="'3d'">{{ t('近3天', 'Last 3 days') }}</el-radio-button>
+        <el-radio-button :value="'7d'">{{ t('近一周', 'Last 7 days') }}</el-radio-button>
+        <el-radio-button :value="'30d'">{{ t('近一月', 'Last 30 days') }}</el-radio-button>
+        <el-radio-button :value="'custom'">{{ t('自定义', 'Custom') }}</el-radio-button>
       </el-radio-group>
 
       <el-date-picker
@@ -16,18 +16,18 @@
         v-model="dateRange"
         type="datetimerange"
         range-separator="-"
-        start-placeholder="开始时间"
-        end-placeholder="结束时间"
+        :start-placeholder="t('开始时间', 'Start time')"
+        :end-placeholder="t('结束时间', 'End time')"
         value-format="YYYY-MM-DD HH:mm"
         size="small"
       />
 
-      <el-input v-model.number="appId" placeholder="应用ID(可选)" clearable size="small" style="width: 180px" />
+      <el-input v-model.number="appId" :placeholder="t('应用ID(可选)', 'App ID (optional)')" clearable size="small" style="width: 180px" />
 
-      <el-button type="primary" size="small" :loading="funnelLoading" @click="fetchFunnel">查询</el-button>
+      <el-button type="primary" size="small" :loading="funnelLoading" @click="fetchFunnel">{{ t('查询', 'Search') }}</el-button>
       
       <div class="step-toggle">
-        <span class="toggle-label">显示层级：</span>
+        <span class="toggle-label">{{ t('显示层级：', 'Show stages:') }}</span>
         <el-checkbox
           v-for="s in steps"
           :key="s.key"
@@ -35,20 +35,20 @@
           @change="updateFunnelChart"
           size="small"
         >{{ s.label }}</el-checkbox>
-        <el-button link size="small" @click="setAllVisible(true)">全选</el-button>
-        <el-button link size="small" @click="setAllVisible(false)">全不选</el-button>
+        <el-button link size="small" @click="setAllVisible(true)">{{ t('全选', 'Select all') }}</el-button>
+        <el-button link size="small" @click="setAllVisible(false)">{{ t('全不选', 'Clear all') }}</el-button>
       </div>
     </div>
 
     <div v-if="funnelError" class="error-message">
-      <p>获取漏斗统计失败：{{ funnelError }}</p>
+      <p>{{ t('获取漏斗统计失败：', 'Unable to load funnel:') }}{{ funnelError }}</p>
     </div>
 
     <el-card shadow="never" :body-style="{ padding: '16px' }" v-loading="funnelLoading">
       <template #header>
         <div class="funnel-header">
-          <span>统计周期：{{ funnel?.periodKey || displayPeriod }}</span>
-          <span v-if="funnel && funnel.app">应用：{{ funnel.app.name }} (ID: {{ funnel.appId }})</span>
+          <span>{{ t('统计周期：', 'Period:') }}{{ funnel?.periodKey || displayPeriod }}</span>
+          <span v-if="funnel && funnel.app">{{ t('应用：', 'App:') }}{{ funnel.app.name }} (ID: {{ funnel.appId }})</span>
         </div>
       </template>
 
@@ -59,17 +59,18 @@
           <div class="step-title">{{ s.label }}</div>
           <div class="step-value">{{ formatNumber(getFunnelVal(s.key)) }}</div>
           <div class="step-rate" v-if="idx > 0">
-            转化率：{{ formatPercent(getFunnelVal(visibleSteps[idx-1].key), getFunnelVal(s.key)) }}
+            {{ t('转化率：', 'Conversion rate:') }}{{ formatPercent(getFunnelVal(visibleSteps[idx-1].key), getFunnelVal(s.key)) }}
           </div>
         </div>
       </div>
 
-      <div v-else class="loading-text">请选择时间范围后查询</div>
+      <div v-else class="loading-text">{{ t('请选择时间范围后查询', 'Select a time range to search') }}</div>
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
+import { locale, t } from '@/i18n'
 import { ref, computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { getFunnel } from '@/api/purchase'
 import type { AppFunnelVO, SalesQueryDTO } from '@/types/api'
@@ -84,7 +85,7 @@ const appId = ref<number | null>(null)
 
 const formatNumber = (n: number | undefined) => {
   if (n === undefined || n === null) return '0'
-  return Number(n).toLocaleString('en-US')
+  return Number(n).toLocaleString(locale.value)
 }
 
 const formatPercent = (fromVal?: number, toVal?: number) => {
@@ -136,7 +137,7 @@ const fetchFunnel = async () => {
     funnelLoading.value = true
     funnelError.value = null
     if (!dateRange.value) applyRangeByType()
-    if (!dateRange.value) { funnelError.value = '请选择时间范围'; return }
+    if (!dateRange.value) { funnelError.value = t('请选择时间范围', 'Select a time range'); return }
     const appIdVal = appId.value != null && !Number.isNaN(appId.value) ? appId.value : null
     const toDate = (s: string) => s?.split(' ')[0] || s
     const dto: SalesQueryDTO = {
@@ -146,9 +147,9 @@ const fetchFunnel = async () => {
     }
     const res = await getFunnel(dto)
     if (res.code === 0 && res.data) funnel.value = res.data
-    else funnelError.value = res.msg || 'Failed to fetch funnel data'
+    else funnelError.value = res.msg || t('无法获取漏斗数据', 'Failed to fetch funnel data')
   } catch (e) {
-    funnelError.value = 'Network error occurred'
+    funnelError.value = t('网络错误', 'Network error occurred')
     console.error('Error fetching funnel:', e)
   } finally {
     funnelLoading.value = false
@@ -156,12 +157,12 @@ const fetchFunnel = async () => {
 }
 
 const steps = [
-  { label: '下载', key: 'downloads' as const },
-  { label: '弹码', key: 'codeDisplayed' as const },
-  { label: '输入码', key: 'codeEntered' as const },
-  { label: '开始购买', key: 'startPurchase' as const },
-  { label: '应用购买', key: 'appPurchases' as const },
-  { label: '套餐购买', key: 'bundlePurchases' as const }
+  { get label() { return t('下载', 'Downloads') }, key: 'downloads' as const },
+  { get label() { return t('弹码', 'Code displayed') }, key: 'codeDisplayed' as const },
+  { get label() { return t('输入码', 'Code entered') }, key: 'codeEntered' as const },
+  { get label() { return t('开始购买', 'Checkout started') }, key: 'startPurchase' as const },
+  { get label() { return t('应用购买', 'App purchases') }, key: 'appPurchases' as const },
+  { get label() { return t('套餐购买', 'Bundle purchases') }, key: 'bundlePurchases' as const }
 ]
 
 const stepVisible = ref<Record<string, boolean>>({
@@ -236,7 +237,7 @@ const updateFunnelChart = async () => {
     ['#bae3d1', '#2f9e6e']
   ]
   const option = {
-    tooltip: { trigger: 'item', formatter: (p: any) => `${p.name}: ${p.value}${p.data?.rate ? `<br/>转化率：${p.data.rate}` : ''}` },
+    tooltip: { trigger: 'item', formatter: (p: any) => `${p.name}: ${p.value}${p.data?.rate ? `<br/>${t('转化率：', 'Conversion rate: ')}${p.data.rate}` : ''}` },
     series: [
       {
         type: 'funnel', left: '10%', top: 20, bottom: 20, width: '80%', minSize: '15%', maxSize: '100%', sort: 'none', gap: 2,
@@ -255,7 +256,7 @@ const updateFunnelChart = async () => {
       {
         type: 'funnel', left: '10%', top: 20, bottom: 20, width: '80%', minSize: '15%', maxSize: '100%', sort: 'none', gap: 2,
         silent: true, tooltip: { show: false },
-        label: { show: true, position: 'right', formatter: (p: any) => (p.data?.rate && p.data.rate !== '-' ? `转化率：${p.data.rate}` : ''), color: '#2f7a53' },
+        label: { show: true, position: 'right', formatter: (p: any) => (p.data?.rate && p.data.rate !== '-' ? `${t('转化率：', 'Conversion rate: ')}${p.data.rate}` : ''), color: '#2f7a53' },
         labelLine: { show: true, length: 10, lineStyle: { color: '#9aa39f' } },
         itemStyle: { color: 'rgba(0,0,0,0)', borderColor: 'rgba(0,0,0,0)' },
         data
@@ -266,7 +267,7 @@ const updateFunnelChart = async () => {
   setTimeout(() => funnelChart && funnelChart.resize(), 0)
 }
 
-watch(funnel, () => updateFunnelChart())
+watch([funnel, locale], () => updateFunnelChart())
 
 // Auto-fetch when using custom range and user changes dates
 watch(dateRange, (val) => {

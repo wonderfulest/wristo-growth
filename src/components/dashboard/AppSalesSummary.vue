@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-content">
-    <h3 class="section-title">应用销售总计</h3>
+    <h3 class="section-title">{{ t('应用销售总计', 'App sales total') }}</h3>
 
     <div v-if="summaryError" class="error-message">
-      <p>获取应用销售总计失败：{{ summaryError }}</p>
+      <p>{{ t('获取应用销售总计失败：', 'Unable to load app sales:') }}{{ summaryError }}</p>
     </div>
 
-    <el-table v-loading="summaryLoading" :data="summaryList" border style="width: 100%" empty-text="No data">
-      <el-table-column label="应用" min-width="240">
+    <el-table v-loading="summaryLoading" :data="summaryList" border style="width: 100%" :empty-text="t('暂无数据', 'No data')">
+      <el-table-column :label="t('应用', 'App')" min-width="240">
         <template #default="{ row }">
           <div class="app-cell">
             <img v-if="row.app?.garminImageUrl" :src="row.app.garminImageUrl" alt="" class="app-thumb" />
@@ -19,13 +19,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="salesCount" label="销量" width="120" align="right" />
-      <el-table-column label="总金额" width="160" align="right">
+      <el-table-column prop="salesCount" :label="t('销量', 'Units sold')" width="120" align="right" />
+      <el-table-column :label="t('总金额', 'Total amount')" width="160" align="right">
         <template #default="{ row }">
           ${{ formatCurrency(row.totalAmount) }}
         </template>
       </el-table-column>
-      <el-table-column prop="bundleTriggerCount" label="触发套餐次数" width="160" align="right" />
+      <el-table-column prop="bundleTriggerCount" :label="t('触发套餐次数', 'Bundle hits')" width="160" align="right" />
     </el-table>
 
     <div class="table-footer">
@@ -44,6 +44,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale, t } from '@/i18n'
 import { ref, onMounted } from 'vue'
 import { getAppSalesSummaryPage } from '@/api/purchase'
 import type { AppSalesSummaryVO, AppSalesSummaryPageQueryDTO } from '@/types/api'
@@ -56,7 +57,7 @@ const summaryPageSize = ref(10)
 const summaryTotal = ref(0)
 
 const formatCurrency = (amount: number): string => {
-  return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return amount.toLocaleString(locale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 const fetchSummaryPage = async () => {
@@ -72,10 +73,10 @@ const fetchSummaryPage = async () => {
       summaryList.value = res.data.list || []
       summaryTotal.value = res.data.total || 0
     } else {
-      summaryError.value = res.msg || 'Failed to fetch app sales summary'
+      summaryError.value = res.msg || t('无法获取应用销量', 'Failed to fetch app sales summary')
     }
   } catch (e) {
-    summaryError.value = 'Network error occurred'
+    summaryError.value = t('网络错误', 'Network error occurred')
     console.error('Error fetching app sales summary:', e)
   } finally {
     summaryLoading.value = false

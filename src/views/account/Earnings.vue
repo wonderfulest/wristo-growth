@@ -1,44 +1,45 @@
 <template>
   <section class="earnings-page" aria-labelledby="earnings-heading">
-    <h1 id="earnings-heading">我的收益</h1>
+    <h1 id="earnings-heading">{{ t('我的收益', 'My earnings') }}</h1>
     <div v-if="earnings" class="earnings-total">
-      <h2>累计佣金</h2>
+      <h2>{{ t('累计佣金', 'Total commission') }}</h2>
       <p class="money"><span>¥</span>{{ amount(earnings.commissionFen) }}</p>
-      <p class="total-note">已扣除退款冲回</p>
+      <p class="total-note">{{ t('已扣除退款冲回', 'After refund adjustments') }}</p>
     </div>
     <section class="detail" aria-labelledby="commission-heading" :aria-busy="loading">
-      <h2 id="commission-heading">佣金明细</h2>
+      <h2 id="commission-heading">{{ t('佣金明细', 'Commission history') }}</h2>
       <div v-if="error" role="alert" class="feedback">
-        <p>收益明细暂时无法加载</p><button @click="load(requestedPage)">重新加载</button>
+        <p>{{ t('收益明细暂时无法加载', 'Unable to load earnings') }}</p><button @click="load(requestedPage)">{{ t('重新加载', 'Reload') }}</button>
       </div>
-      <p v-else-if="loading" role="status" class="feedback">正在加载收益…</p>
-      <p v-else-if="!earnings?.items.length" class="feedback">暂无佣金明细</p>
+      <p v-else-if="loading" role="status" class="feedback">{{ t('正在加载收益…', 'Loading earnings…') }}</p>
+      <p v-else-if="!earnings?.items.length" class="feedback">{{ t('暂无佣金明细', 'No commission yet') }}</p>
       <ul v-else class="entries">
         <li v-for="item in earnings.items" :key="item.orderNo" class="entry">
-          <span class="avatar" :title="item.buyerNickname || '顾客'">
-            {{ Array.from(item.buyerNickname?.trim() || '客')[0] }}
+          <span class="avatar" :title="item.buyerNickname || t('顾客', 'Customer')">
+            {{ Array.from(item.buyerNickname?.trim() || t('客', 'C'))[0] }}
           </span>
           <div class="description">
-            <h3>{{ item.productName || '会员订单' }}</h3>
+            <h3>{{ item.productName || t('会员订单', 'Membership order') }}</h3>
             <p v-if="item.paidAt"><time :datetime="item.paidAt">{{ displayTime(item.paidAt) }}</time></p>
-            <p v-if="item.status === 'REVERSED'">原佣金 ¥{{ amount(item.commissionFen) }}</p>
+            <p v-if="item.status === 'REVERSED'">{{ t('原佣金 ¥', 'Original commission ¥') }}{{ amount(item.commissionFen) }}</p>
           </div>
           <div class="entry-value" :class="{ reversed: item.status === 'REVERSED' }">
             <strong>{{ item.status === 'REVERSED' ? '¥0.00' : '+¥' + amount(item.commissionFen) }}</strong>
-            <span>{{ item.status === 'REVERSED' ? '已冲回' : '已计入' }}</span>
+            <span>{{ item.status === 'REVERSED' ? t('已冲回', 'Reversed') : t('已计入', 'Credited') }}</span>
           </div>
         </li>
       </ul>
-      <nav v-if="earnings && earnings.total > 20" class="pager" aria-label="收益分页">
-        <button :disabled="loading || page <= 1" @click="load(page - 1)">上一页</button>
+      <nav v-if="earnings && earnings.total > 20" class="pager" :aria-label="t('收益分页', 'Earnings pages')">
+        <button :disabled="loading || page <= 1" @click="load(page - 1)">{{ t('上一页', 'Previous') }}</button>
         <span aria-live="polite">{{ page }} / {{ Math.ceil(earnings.total / 20) }}</span>
-        <button :disabled="loading || page >= Math.ceil(earnings.total / 20)" @click="load(page + 1)">下一页</button>
+        <button :disabled="loading || page >= Math.ceil(earnings.total / 20)" @click="load(page + 1)">{{ t('下一页', 'Next') }}</button>
       </nav>
     </section>
   </section>
 </template>
 
 <script setup lang="ts">
+import { locale, t } from '@/i18n'
 import { onMounted, ref } from 'vue'
 import { fetchOfflineEarnings, type OfflineEarnings } from '@/api/offline-promotion'
 
@@ -47,7 +48,7 @@ const loading = ref(false)
 const error = ref(false)
 const page = ref(1)
 const requestedPage = ref(1)
-const amount = (fen: number) => (fen / 100).toLocaleString('zh-CN', {
+const amount = (fen: number) => (fen / 100).toLocaleString(locale.value, {
   minimumFractionDigits: 2, maximumFractionDigits: 2
 })
 function displayTime(value: string) {

@@ -1,21 +1,21 @@
 <template>
   <div class="account-layout">
     <div class="header-sub">
-      <nav class="header-sub-nav" aria-label="推广后台导航">
-        <router-link to="/account/dashboard" exact-active-class="active">Dashboard</router-link>
-        <router-link to="/account/coupons" exact-active-class="active">Coupons</router-link>
-        <router-link to="/account/materials" exact-active-class="active">线下推广素材</router-link>
-        <router-link to="/account/downlines" exact-active-class="active">我的下线</router-link>
-        <router-link to="/account/earnings" exact-active-class="active">收益</router-link>
-        <router-link to="/account/history" exact-active-class="active">Deals</router-link>
-        <router-link to="/account/profile" exact-active-class="active">Profile</router-link>
+      <nav class="header-sub-nav" :aria-label="t('推广后台导航', 'Promoter navigation')">
+        <router-link to="/account/dashboard" exact-active-class="active">{{ t('概览', 'Dashboard') }}</router-link>
+        <router-link to="/account/coupons" exact-active-class="active">{{ t('优惠码', 'Coupons') }}</router-link>
+        <router-link to="/account/materials" exact-active-class="active">{{ t('线下推广素材', 'Offline materials') }}</router-link>
+        <router-link to="/account/downlines" exact-active-class="active">{{ t('我的下线', 'My customers') }}</router-link>
+        <router-link to="/account/earnings" exact-active-class="active">{{ t('收益', 'Earnings') }}</router-link>
+        <router-link to="/account/history" exact-active-class="active">{{ t('交易', 'Deals') }}</router-link>
+        <router-link to="/account/profile" exact-active-class="active">{{ t('个人资料', 'Profile') }}</router-link>
       </nav>
     </div>
     <!-- Main Content -->
     <main class="main-content">
       <router-view />
     </main>
-    <nav class="mobile-tabs" aria-label="推广后台主导航">
+    <nav class="mobile-tabs" :aria-label="t('推广后台主导航', 'Main promoter navigation')">
       <router-link v-for="tab in tabs" :key="tab.path" :to="'/account/' + tab.path"
         :class="{ selected: tab.path === 'profile' && legacyPages.includes($route.name as string) }">
         <component :is="tab.icon" aria-hidden="true" />{{ tab.label }}
@@ -25,12 +25,13 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { Promotion, User, Coin, Avatar } from '@element-plus/icons-vue'
 const tabs = [
-  { path: 'materials', label: '推广', icon: Promotion },
-  { path: 'downlines', label: '下线', icon: User },
-  { path: 'earnings', label: '收益', icon: Coin },
-  { path: 'profile', label: '我的', icon: Avatar }
+  { path: 'materials', get label() { return t('推广', 'Promote') }, icon: Promotion },
+  { path: 'downlines', get label() { return t('下线', 'Customers') }, icon: User },
+  { path: 'earnings', get label() { return t('收益', 'Earnings') }, icon: Coin },
+  { path: 'profile', get label() { return t('我的', 'Profile') }, icon: Avatar }
 ]
 const legacyPages = ['Dashboard', 'Coupons', 'History']
 </script>

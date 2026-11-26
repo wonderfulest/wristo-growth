@@ -3,13 +3,14 @@
     <img v-if="device?.imageUrl" :src="device.imageUrl" alt="" class="device-thumb" />
     <div class="device-info">
       <div class="device-name">{{ device?.displayName || partNumber }}</div>
-      <div v-if="device && partNumber" class="device-sub">SN: {{ partNumber }}</div>
+      <div v-if="device && partNumber" class="device-sub">{{ t('序列号：', 'SN:') }} {{ partNumber }}</div>
     </div>
   </div>
   <span v-else>-</span>
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import type { GarminDeviceBaseVO } from '@/types/device'
 
 interface Props {

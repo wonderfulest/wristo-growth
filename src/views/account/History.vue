@@ -1,9 +1,9 @@
 <template>
   <div class="account-page">
-    <h2 class="page-title">Promoter deals</h2>
+    <h2 class="page-title">{{ t('推广交易', 'Promoter deals') }}</h2>
 
     <div v-if="error" class="error-message">
-      Failed to load deals: {{ error }}
+      {{ t('无法加载交易：', 'Failed to load deals:') }} {{ error }}
     </div>
 
     <el-table v-if="!compact"
@@ -11,14 +11,14 @@
       :data="deals"
       border
       style="width: 100%"
-      empty-text="No deals"
+      :empty-text="t('暂无交易', 'No deals')"
     >
-      <el-table-column prop="createdAt" label="Time" min-width="180">
+      <el-table-column prop="createdAt" :label="t('时间', 'Time')" min-width="180">
         <template #default="{ row }">
           {{ formatTimestamp(row.createdAt) }}
         </template>
       </el-table-column>
-      <el-table-column label="Product" min-width="240">
+      <el-table-column :label="t('商品', 'Product')" min-width="240">
         <template #default="{ row }">
           <AppCell
             :title="productTitle(row)"
@@ -28,52 +28,52 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="order.email" label="Customer" min-width="200">
+      <el-table-column prop="order.email" :label="t('顾客', 'Customer')" min-width="200">
         <template #default="{ row }">
           {{ row.order?.email ? maskEmail(row.order.email) : '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.partNumber" label="Device" min-width="220">
+      <el-table-column prop="order.partNumber" :label="t('设备', 'Device')" min-width="220">
         <template #default="{ row }">
           <DeviceCell :device="deviceForRow(row)" :part-number="row.order?.partNumber || ''" />
         </template>
       </el-table-column>
-      <el-table-column label="Order" width="140" align="right">
+      <el-table-column :label="t('订单', 'Order')" width="140" align="right">
         <template #default="{ row }">
           ${{ formatCurrency(row.baseAmount) }}
         </template>
       </el-table-column>
-      <el-table-column label="Rate" width="140" align="right">
+      <el-table-column :label="t('佣金比例', 'Rate')" width="140" align="right">
         <template #default="{ row }">
           {{ formatRate(row.rate) }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.origin" label="Source" width="120">
+      <el-table-column prop="order.origin" :label="t('来源', 'Source')" width="120">
         <template #default="{ row }">
           {{ row.order?.origin || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.paymentMethod" label="Pay" width="120">
+      <el-table-column prop="order.paymentMethod" :label="t('支付方式', 'Pay')" width="120">
         <template #default="{ row }">
           {{ row.order?.paymentMethod || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.countryCode" label="Country" width="60">
+      <el-table-column prop="order.countryCode" :label="t('国家或地区', 'Country')" width="60">
         <template #default="{ row }">
           {{ row.order?.countryCode || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.isBundle" label="Bundle" width="60">
+      <el-table-column prop="order.isBundle" :label="t('套餐', 'Bundle')" width="60">
         <template #default="{ row }">
-          {{ row.order?.isBundle ? '是' : '否' }}
+          {{ row.order?.isBundle ? t('是', 'Yes') : t('否', 'No') }}
         </template>
       </el-table-column>
-      <el-table-column prop="order.transactionId" label="Txn ID" min-width="260">
+      <el-table-column prop="order.transactionId" :label="t('交易编号', 'Txn ID')" min-width="260">
         <template #default="{ row }">
           {{ row.order?.transactionId || '-' }}
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="Status" width="120">
+      <el-table-column prop="status" :label="t('状态', 'Status')" width="120">
         <template #default="{ row }">
           <el-tag>{{ row.status }}</el-tag>
         </template>
@@ -86,22 +86,22 @@
           <AppCell :title="productTitle(row)" :subtitle="productSubtitle(row)" :image-url="productImage(row)" :link-url="productLink(row)" />
           <el-tag>{{ row.status }}</el-tag>
         </header>
-        <div class="deal-summary"><strong>${{ formatCurrency(row.baseAmount) }}</strong><span>{{ formatRate(row.rate) }} rate</span></div>
+        <div class="deal-summary"><strong>${{ formatCurrency(row.baseAmount) }}</strong><span>{{ formatRate(row.rate) }} {{ t('佣金比例', 'rate') }}</span></div>
         <time :datetime="row.createdAt">{{ formatTimestamp(row.createdAt) }}</time>
         <details>
-          <summary>Order details</summary>
+          <summary>{{ t('订单详情', 'Order details') }}</summary>
           <dl>
-            <dt>Customer</dt><dd>{{ row.order?.email ? maskEmail(row.order.email) : '–' }}</dd>
-            <dt>Device</dt><dd><DeviceCell :device="deviceForRow(row)" :part-number="row.order?.partNumber || ''" /></dd>
-            <dt>Source</dt><dd>{{ row.order?.origin || '–' }}</dd>
-            <dt>Pay</dt><dd>{{ row.order?.paymentMethod || '–' }}</dd>
-            <dt>Country</dt><dd>{{ row.order?.countryCode || '–' }}</dd>
-            <dt>Bundle</dt><dd>{{ row.order?.isBundle ? 'Yes' : 'No' }}</dd>
-            <dt>Txn ID</dt><dd class="transaction-id">{{ row.order?.transactionId || '–' }}</dd>
+            <dt>{{ t('顾客', 'Customer') }}</dt><dd>{{ row.order?.email ? maskEmail(row.order.email) : '–' }}</dd>
+            <dt>{{ t('设备', 'Device') }}</dt><dd><DeviceCell :device="deviceForRow(row)" :part-number="row.order?.partNumber || ''" /></dd>
+            <dt>{{ t('来源', 'Source') }}</dt><dd>{{ row.order?.origin || '–' }}</dd>
+            <dt>{{ t('支付方式', 'Pay') }}</dt><dd>{{ row.order?.paymentMethod || '–' }}</dd>
+            <dt>{{ t('国家或地区', 'Country') }}</dt><dd>{{ row.order?.countryCode || '–' }}</dd>
+            <dt>{{ t('套餐', 'Bundle') }}</dt><dd>{{ row.order?.isBundle ? t('是', 'Yes') : t('否', 'No') }}</dd>
+            <dt>{{ t('交易编号', 'Txn ID') }}</dt><dd class="transaction-id">{{ row.order?.transactionId || '–' }}</dd>
           </dl>
         </details>
       </article>
-      <p v-if="!deals.length && !loading && !error" class="empty-message">No deals</p>
+      <p v-if="!deals.length && !loading && !error" class="empty-message">{{ t('暂无交易', 'No deals') }}</p>
     </div>
 
     <div class="table-footer">
@@ -120,6 +120,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale, t } from '@/i18n'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import AppCell from '@/components/common/AppCell.vue'
 import DeviceCell from '@/components/common/DeviceCell.vue'
@@ -145,7 +146,7 @@ const deviceMap = ref<Record<string, GarminDeviceBaseVO>>({})
 
 const formatTimestamp = (dateString: string): string => {
   const date = new Date(dateString)
-  return date.toLocaleDateString('zh-CN', {
+  return date.toLocaleDateString(locale.value, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -191,9 +192,9 @@ const productSubtitle = (row: PromoterDealItemVO): string => {
   const order = row.order
   if (!order) return ''
   if (order.isBundle) {
-    return `Bundle · App ID: ${order.appId}`
+    return `${t('套餐 · 应用 ID：', 'Bundle · App ID: ')} ${order.appId}`
   }
-  return `App ID: ${order.appId}`
+  return `${t('应用 ID：', 'App ID: ')} ${order.appId}`
 }
 
 const productImage = (row: PromoterDealItemVO): string | null => {
@@ -239,10 +240,10 @@ const fetchDeals = async () => {
       deals.value = res.data.list || []
       total.value = res.data.total || 0
     } else {
-      error.value = res.msg || 'Failed to load deals'
+      error.value = res.msg || t('无法加载交易', 'Failed to load deals')
     }
   } catch (e) {
-    error.value = 'Network error'
+    error.value = t('网络错误', 'Network error')
   } finally {
     loading.value = false
   }

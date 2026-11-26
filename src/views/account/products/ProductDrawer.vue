@@ -1,11 +1,11 @@
 <template>
   <div class="add-product-drawer">
     <div class="drawer-header">
-      <h2>Add New Product</h2>
+      <h2>{{ t('添加商品', 'Add New Product') }}</h2>
     </div>
     <div class="drawer-body">
       <div class="section-title-row">
-        <span class="section-title">Product Image</span>
+        <span class="section-title">{{ t('商品图片', 'Product Image') }}</span>
         <el-button
           class="help-btn"
           type="info"
@@ -27,9 +27,9 @@
       >
         <template #content>
           <div class="section-desc">
-            Upload an image for the platform that this product is available for.<br>
-            Leave blank if your product doesn't support that platform. Customers will view this before purchasing.<br>
-            We recommend using the same preview you used in the Garmin store.
+            {{ t('为商品支持的平台上传图片。', 'Upload an image for the platform that this product is available for.') }}<br>
+            {{ t('不支持的平台可留空。顾客将在购买前看到这些图片。', 'Leave blank if your product doesn\'t support that platform. Customers will view this before purchasing.') }}<br>
+            {{ t('建议使用与 Garmin 商店一致的预览图。', 'We recommend using the same preview you used in the Garmin store.') }}
           </div>
         </template>
         <span></span>
@@ -51,7 +51,7 @@
           >
             <div v-if="!form[platform.imgField]" class="img-upload-placeholder">
               <el-icon><i class="el-icon-picture" /></el-icon>
-              <div>Add Preview</div>
+              <div>{{ t('添加预览图', 'Add Preview') }}</div>
             </div>
             <img v-else :src="form[platform.imgField]" class="img-preview" />
           </el-upload>
@@ -82,7 +82,7 @@
           <span
             v-if="item.key === 'trialLasts'"
             style="margin-left: 8px; color: #888; font-size: 1.1rem; margin-top: 10px;"
-            >Hours</span
+            >{{ t('小时', 'Hours') }}</span
           >
           <span
             v-if="item.key === 'price'"
@@ -109,7 +109,7 @@
           :popper-style="{maxWidth: '400px', whiteSpace: 'normal', lineHeight: '1.2'}"
         >
           <span class="footer-checkbox-text" style="cursor: pointer;">
-            Agree to the terms
+            {{ t('同意条款', 'Agree to the terms') }}
           </span>
         </el-tooltip>
       </el-checkbox>
@@ -120,14 +120,15 @@
         :disabled="!checked || loading"
         @click="props.product ? handleSave() : handleCreate()"
       >
-        {{ props.product ? 'Save' : 'CREATE PRODUCT' }}
+        {{ props.product ? t('保存', 'Save') : t('创建商品', 'CREATE PRODUCT') }}
       </el-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose, defineProps, watch } from "vue";
+import { t } from '@/i18n'
+import { computed, ref, defineExpose, defineProps, watch } from "vue";
 import { createProduct, updateProduct, type Product, uploadProductImage } from '@/api/products'
 import { ElMessage } from 'element-plus'
 import { defineEmits } from 'vue'
@@ -164,45 +165,45 @@ const checked = ref(false);
 const loading = ref(false);
 const emits = defineEmits(['close'])
 
-const fullAgreement = `By clicking this box, you represent and warrant that you have all necessary rights, including all patent, trademark, trade secret, copyright or other intellectual property, publicity, or other proprietary rights, in and to this product. Do not check this box unless you own all such rights or have sufficient permission from their rightful owner(s) to use the material for commercial purposes.\n\nIf you check this box and it turns out you do not have all necessary rights, any and all damages coming from this violation will be charged to you in full.`;
+const fullAgreement = computed(() => t('勾选此项即表示您声明并保证，您拥有该商品所需的一切权利，包括专利权、商标权、商业秘密权、著作权、其他知识产权、形象权或其他专有权利。仅在您拥有上述全部权利，或已获得权利人充分授权可将材料用于商业用途时，方可勾选。若勾选后发现您缺少必要权利，由此产生的全部损害赔偿均由您承担。', `By clicking this box, you represent and warrant that you have all necessary rights, including all patent, trademark, trade secret, copyright or other intellectual property, publicity, or other proprietary rights, in and to this product. Do not check this box unless you own all such rights or have sufficient permission from their rightful owner(s) to use the material for commercial purposes.\n\nIf you check this box and it turns out you do not have all necessary rights, any and all damages coming from this violation will be charged to you in full.`));
 
-const inputItems = [
+const inputItems = computed(() => [
   {
     key: "name",
-    label: "Name of Product",
+    label: t('商品名称', 'Name of Product'),
     placeholder: "",
     type: "text",
-    tip: "Enter the name of the product.",
+    tip: t('请输入商品名称。', 'Enter the name of the product.'),
   },
-  { key: "description", label: "Description for Product", placeholder: "" },
+  { key: "description", label: t('商品说明', 'Description for Product'), placeholder: "" },
   {
     key: "price",
-    label: "Price of Product",
+    label: t('商品价格', 'Price of Product'),
     placeholder: "",
     type: "text",
-    tip: "Enter the price of the product.",
+    tip: t('请输入商品价格。', 'Enter the price of the product.'),
   },
   {
     key: "garminUrl",
-    label: "Garmin Appstore Url",
+    label: t('Garmin 商店链接', 'Garmin Appstore Url'),
     placeholder: "",
     type: "text",
-    tip: "If this product is available for Garmin smartwatches, enter the Garmin appstore URL which allows customers to install the app here.",
+    tip: t('若商品支持 Garmin 手表，请填写顾客可用于安装应用的 Garmin 商店链接。', 'If this product is available for Garmin smartwatches, enter the Garmin appstore URL which allows customers to install the app here.'),
   },
   {
     key: "trialLasts",
-    label: "Trial Lasts",
+    label: t('试用时长', 'Trial Lasts'),
     placeholder: "",
     type: "text",
-    tip: "Enter the number of hours the trial will last. Leave blank if you do not want to offer a trial. support 0 means no trial, 0.5 means 0.5 hours.",
+    tip: t('以小时填写试用时长。留空或填 0 表示不提供试用，0.5 表示半小时。', 'Enter the number of hours the trial will last. Leave blank if you do not want to offer a trial. support 0 means no trial, 0.5 means 0.5 hours.'),
   },
   {
     key: "contactUrl",
-    label: "Product FAQ & Contact Page",
+    label: t('常见问题与联系页面', 'Product FAQ & Contact Page'),
     placeholder: "",
     type: "text",
   },
-];
+]);
 
 function handleImageChange(file: any, key: string) {
   if (!file || !file.raw) return;
@@ -211,13 +212,13 @@ function handleImageChange(file: any, key: string) {
     .then((res: any) => {
       if (res.code === 0 && res.data) {
         form.value[`${key}Img`] = res.data;
-        ElMessage.success('图片上传成功');
+        ElMessage.success(t('图片上传成功', 'Image uploaded'));
       } else {
-        ElMessage.error(res.msg || '图片上传失败');
+        ElMessage.error(res.msg || t('图片上传失败', 'Image upload failed'));
       }
     })
     .catch(() => {
-      ElMessage.error('图片上传失败');
+      ElMessage.error(t('图片上传失败', 'Image upload failed'));
     })
     .finally(() => {
       loading.value = false;
@@ -230,19 +231,19 @@ function isActive(key: string) {
 
 function validateForm() {
   if (!form.value.name.trim()) {
-    ElMessage.error('Product name is required');
+    ElMessage.error(t('请填写商品名称', 'Product name is required'));
     return false;
   }
   if (!form.value.description.trim()) {
-    ElMessage.error('Product description is required');
+    ElMessage.error(t('请填写商品说明', 'Product description is required'));
     return false;
   }
   if (form.value.price && isNaN(Number(form.value.price))) {
-    ElMessage.error('Price must be a number');
+    ElMessage.error(t('价格须为数字', 'Price must be a number'));
     return false;
   }
   if (form.value.trialLasts && isNaN(Number(form.value.trialLasts))) {
-    ElMessage.error('Trial Lasts must be a number');
+    ElMessage.error(t('试用时长须为数字', 'Trial Lasts must be a number'));
     return false;
   }
   return true;
@@ -250,7 +251,7 @@ function validateForm() {
 
 async function handleCreate() {
   if (!checked.value) {
-    ElMessage.error('You must agree to the terms');
+    ElMessage.error(t('请先同意条款', 'You must agree to the terms'));
     return;
   }
   if (!validateForm()) return;
@@ -266,13 +267,13 @@ async function handleCreate() {
     };
     const res: ApiResponse<Product> = await createProduct(payload);
     if (res.code === 0) {
-      ElMessage.success('Product created successfully');
+      ElMessage.success(t('商品已创建', 'Product created successfully'));
       emits('close');
     } else {
-      ElMessage.error(res.msg || 'Create failed');
+      ElMessage.error(res.msg || t('创建失败', 'Create failed'));
     }
   } catch (e: any) {
-    ElMessage.error(e?.msg || 'Create failed');
+    ElMessage.error(e?.msg || t('创建失败', 'Create failed'));
   } finally {
     loading.value = false;
   }
@@ -338,13 +339,13 @@ async function handleSave() {
     }
     const res = await updateProduct(props.product.appId, payload)
     if (res.code === 0) {
-      ElMessage.success('Product updated successfully')
+      ElMessage.success(t('商品已更新', 'Product updated successfully'))
       emits('close')
     } else {
-      ElMessage.error(res.msg || 'Update failed')
+      ElMessage.error(res.msg || t('更新失败', 'Update failed'))
     }
   } catch (e: any) {
-    ElMessage.error(e?.msg || 'Update failed')
+    ElMessage.error(e?.msg || t('更新失败', 'Update failed'))
   } finally {
     loading.value = false
   }

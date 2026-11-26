@@ -23,7 +23,7 @@
 
         <div v-if="ratioTip" class="ratio-tip" :title="ratioTip">{{ ratioTip }}</div>
 
-        <div v-if="uploading" class="mask">上传中...</div>
+        <div v-if="uploading" class="mask">{{ t('上传中...', 'Uploading…') }}</div>
         <button v-if="modelValue" type="button" class="clear" :disabled="uploading" @click.stop="clear">×</button>
       </div>
     </el-upload>
@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { uploadImage } from '@/api/image'
@@ -88,7 +89,7 @@ const ensureAspectCodeValid = async () => {
       validAspectCodes: validAspectCodes.value,
       ratioMap: aspectRatioMap.value
     })
-    ElMessage.error(`图片尺寸类型不合法：${code}`)
+    ElMessage.error(t(`图片尺寸类型不合法：${code}`, `Invalid image aspect type: ${code}`))
   }
   return ok
 }
@@ -174,13 +175,13 @@ watch(
 const beforeUpload = (file: File) => {
   const isImage = file.type.startsWith('image/')
   if (!isImage) {
-    ElMessage.error('仅支持上传图片文件')
+    ElMessage.error(t('仅支持上传图片文件', 'Choose an image file'))
     return false
   }
   const max = props.maxSizeMB || 10
   const sizeOk = file.size / 1024 / 1024 <= max
   if (!sizeOk) {
-    ElMessage.error(`图片大小不能超过 ${max}MB`)
+    ElMessage.error(t(`图片大小不能超过 ${max}MB`, `Images must be no larger than ${max} MB`))
     return false
   }
   return true
@@ -197,14 +198,14 @@ const uploadRawFile = async (raw: File) => {
     const res = await uploadImage(raw, props.aspectCode)
     const img = (res as any)?.data as ImageVO | undefined
     if (!img?.id) {
-      throw new Error('上传失败')
+      throw new Error(t('上传失败', 'Upload failed'))
     }
     emit('update:modelValue', img.id)
     preview.value = img.previewUrl || (img as any)?.formats?.thumbnail?.url || img.url || ''
     emit('uploaded', img)
-    ElMessage.success('图片已上传')
+    ElMessage.success(t('图片已上传', 'Image uploaded'))
   } catch (e: any) {
-    ElMessage.error(e?.msg || '上传失败')
+    ElMessage.error(e?.msg || t('上传失败', 'Upload failed'))
   } finally {
     uploading.value = false
   }

@@ -1,83 +1,84 @@
 <template>
   <section class="materials" aria-labelledby="materials-title">
-    <h1 id="materials-title">我的推广码</h1>
+    <h1 id="materials-title">{{ t('我的推广码', 'My referral code') }}</h1>
     <div v-if="!profile" class="feedback" aria-live="polite">
-      <span v-if="loading">正在加载推广资料…</span>
-      <button v-else @click="loadProfile">重新加载推广资料</button>
+      <span v-if="loading">{{ t('正在加载推广资料…', 'Loading referral details…') }}</span>
+      <button v-else @click="loadProfile">{{ t('重新加载推广资料', 'Reload referral details') }}</button>
     </div>
     <template v-else>
-      <div class="qr-versions" role="group" aria-label="选择小程序版本">
-        <button :aria-pressed="!trial" @click="selectVersion(false)">正式版小程序码</button>
-        <button :aria-pressed="trial" @click="selectVersion(true)">体验版小程序码</button>
+      <div class="qr-versions" role="group" :aria-label="t('选择小程序版本', 'Select mini program version')">
+        <button :aria-pressed="!trial" @click="selectVersion(false)">{{ t('正式版小程序码', 'Live mini program QR code') }}</button>
+        <button :aria-pressed="trial" @click="selectVersion(true)">{{ t('体验版小程序码', 'Trial mini program QR code') }}</button>
       </div>
-      <p v-if="trial" class="hint">请使用有体验权限的微信扫码。</p>
+      <p v-if="trial" class="hint">{{ t('请使用有体验权限的微信扫码。', 'Scan with a WeChat account that has trial access.') }}</p>
       <div class="qr-area" :aria-busy="loadingQr">
-        <button v-if="qrUrl" class="qr-image" :aria-label="'预览' + qrLabel" @click="preview?.showModal()">
+        <button v-if="qrUrl" class="qr-image" :aria-label="t('预览', 'Preview ') + qrLabel" @click="preview?.showModal()">
           <img :src="qrUrl" :alt="qrLabel" @error="clearQr" />
         </button>
-        <span v-else-if="loadingQr" role="status">正在加载小程序码…</span>
-        <button v-else class="outline" @click="loadQr">重新加载小程序码</button>
+        <span v-else-if="loadingQr" role="status">{{ t('正在加载小程序码…', 'Loading QR code…') }}</span>
+        <button v-else class="outline" @click="loadQr">{{ t('重新加载小程序码', 'Reload QR code') }}</button>
       </div>
-      <div class="code-strip"><span>推广码</span><strong>{{ profile.code }}</strong></div>
-      <button class="primary action" :disabled="!qrUrl" @click="saveQr">保存{{ qrLabel }}</button>
-      <button class="outline action" @click="copyCode">复制推广码</button>
+      <div class="code-strip"><span>{{ t('推广码', 'Referral code') }}</span><strong>{{ profile.code }}</strong></div>
+      <button class="primary action" :disabled="!qrUrl" @click="saveQr">{{ t('保存', 'Save ') }}{{ qrLabel }}</button>
+      <button class="outline action" @click="copyCode">{{ t('复制推广码', 'Copy referral code') }}</button>
 
       <section class="discount">
         <div class="section-heading">
-          <h2>优惠与佣金</h2>
-          <button class="adjust" @click="openSettings">调整 <span aria-hidden="true">›</span></button>
+          <h2>{{ t('优惠与佣金', 'Discount and commission') }}</h2>
+          <button class="adjust" @click="openSettings">{{ t('调整', 'Adjust') }} <span aria-hidden="true">›</span></button>
         </div>
         <dl class="split">
-          <div><dt>顾客优惠</dt><dd>{{ profile.discountPercent }}%</dd></div>
-          <div><dt>我的佣金</dt><dd>{{ 40 - profile.discountPercent }}%</dd></div>
+          <div><dt>{{ t('顾客优惠', 'Customer discount') }}</dt><dd>{{ profile.discountPercent }}%</dd></div>
+          <div><dt>{{ t('我的佣金', 'My commission') }}</dt><dd>{{ 40 - profile.discountPercent }}%</dd></div>
         </dl>
       </section>
       <div class="desktop-links">
-        <router-link to="/account/earnings">查看推广收益</router-link>
-        <router-link to="/account/downlines">查看我的下线</router-link>
+        <router-link to="/account/earnings">{{ t('查看推广收益', 'View earnings') }}</router-link>
+        <router-link to="/account/downlines">{{ t('查看我的下线', 'View my customers') }}</router-link>
       </div>
     </template>
 
     <dialog ref="preview" class="preview" aria-labelledby="preview-title">
-      <div class="section-heading"><h2 id="preview-title">{{ qrLabel }}</h2><button aria-label="关闭预览" @click="preview?.close()">×</button></div>
-      <img v-if="qrUrl" :src="qrUrl" alt="可长按保存的推广小程序码" />
-      <p>长按图片可保存到手机。</p>
-      <button class="outline action" @click="downloadQr">下载 PNG</button>
+      <div class="section-heading"><h2 id="preview-title">{{ qrLabel }}</h2><button :aria-label="t('关闭预览', 'Close preview')" @click="preview?.close()">×</button></div>
+      <img v-if="qrUrl" :src="qrUrl" :alt="t('可长按保存的推广小程序码', 'Referral QR code. Press and hold to save.')" />
+      <p>{{ t('长按图片可保存到手机。', 'Press and hold the image to save it to your phone.') }}</p>
+      <button class="outline action" @click="downloadQr">{{ t('下载 PNG', 'Download PNG') }}</button>
     </dialog>
 
     <dialog ref="settings" class="sheet" aria-labelledby="settings-title" @cancel="guardCancel">
       <div class="handle" aria-hidden="true"></div>
       <div class="section-heading">
-        <h2 id="settings-title">调整优惠比例</h2>
-        <button class="close" aria-label="取消调整" :disabled="saving" @click="settings?.close()">×</button>
+        <h2 id="settings-title">{{ t('调整优惠比例', 'Adjust discount') }}</h2>
+        <button class="close" :aria-label="t('取消调整', 'Cancel changes')" :disabled="saving" @click="settings?.close()">×</button>
       </div>
-      <label for="discount-percent">顾客优惠</label>
+      <label for="discount-percent">{{ t('顾客优惠', 'Customer discount') }}</label>
       <div class="stepper">
-        <button :disabled="saving || draft <= 0" aria-label="减少一个百分点" @click="step(-1)">−</button>
+        <button :disabled="saving || draft <= 0" :aria-label="t('减少一个百分点', 'Decrease by one percentage point')" @click="step(-1)">−</button>
         <div><input id="discount-percent" inputmode="numeric" type="number" step="1" min="0" max="40" :value="Number.isFinite(draft) ? draft : ''" :disabled="saving" @input="edit" /><span aria-hidden="true">%</span></div>
-        <button :disabled="saving || draft >= 40" aria-label="增加一个百分点" @click="step(1)">+</button>
+        <button :disabled="saving || draft >= 40" :aria-label="t('增加一个百分点', 'Increase by one percentage point')" @click="step(1)">+</button>
       </div>
-      <p class="hint">0% 至 40%，每次调整 1%</p>
+      <p class="hint">{{ t('0% 至 40%，每次调整 1%', '0% to 40%, in steps of 1%') }}</p>
       <div aria-live="polite">
         <dl class="split">
-          <div><dt>顾客优惠</dt><dd>{{ valid ? draft + '%' : '—' }}</dd></div>
-          <div><dt>我的佣金</dt><dd>{{ valid ? 40 - draft + '%' : '—' }}</dd></div>
+          <div><dt>{{ t('顾客优惠', 'Customer discount') }}</dt><dd>{{ valid ? draft + '%' : '—' }}</dd></div>
+          <div><dt>{{ t('我的佣金', 'My commission') }}</dt><dd>{{ valid ? 40 - draft + '%' : '—' }}</dd></div>
         </dl>
         <section class="example">
-          <h3>以 ¥69.90 会员套餐为例</h3>
+          <h3>{{ t('以 ¥69.90 会员套餐为例', 'Example for a ¥69.90 membership') }}</h3>
           <dl class="split">
-            <div><dt>顾客实付</dt><dd>{{ valid ? yuan(6990 - discountFen) : '—' }}</dd></div>
-            <div><dt>我的佣金</dt><dd>{{ valid ? yuan(2796 - discountFen) : '—' }}</dd></div>
+            <div><dt>{{ t('顾客实付', 'Customer pays') }}</dt><dd>{{ valid ? yuan(6990 - discountFen) : '—' }}</dd></div>
+            <div><dt>{{ t('我的佣金', 'My commission') }}</dt><dd>{{ valid ? yuan(2796 - discountFen) : '—' }}</dd></div>
           </dl>
         </section>
       </div>
-      <p>保存后对新订单生效，续费同样适用。</p>
-      <button class="primary action" :disabled="saving || !valid" @click="saveDiscount">{{ saving ? '正在保存…' : '保存比例' }}</button>
+      <p>{{ t('保存后对新订单生效，续费同样适用。', 'Changes apply to new orders and renewals.') }}</p>
+      <button class="primary action" :disabled="saving || !valid" @click="saveDiscount">{{ saving ? t('正在保存…', 'Saving…') : t('保存比例', 'Save discount') }}</button>
     </dialog>
   </section>
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { downloadOfflineQr, fetchOfflineProfile, saveOfflineDiscount, type OfflineProfile } from '@/api/offline-promotion'
@@ -85,7 +86,7 @@ import { downloadOfflineQr, fetchOfflineProfile, saveOfflineDiscount, type Offli
 const profile = ref<OfflineProfile>()
 const loading = ref(true)
 const trial = ref(false)
-const qrLabel = computed(() => trial.value ? '体验版小程序码' : '正式版小程序码')
+const qrLabel = computed(() => trial.value ? t('体验版小程序码', 'Trial mini program QR code') : t('正式版小程序码', 'Live mini program QR code'))
 let requestId = 0
 const qrUrl = ref('')
 const loadingQr = ref(false)
@@ -153,8 +154,8 @@ async function copyCode() {
   if (!profile.value) return
   try {
     await navigator.clipboard.writeText(profile.value.code)
-    ElMessage.success('推广码已复制')
-  } catch { ElMessage.warning('请选中推广码并手动复制') }
+    ElMessage.success(t('推广码已复制', 'Referral code copied'))
+  } catch { ElMessage.warning(t('请选中推广码并手动复制', 'Select the referral code and copy it manually')) }
 }
 
 function openSettings() {
@@ -182,7 +183,7 @@ async function saveDiscount() {
     const result = await saveOfflineDiscount(draft.value)
     profile.value = result.data || { ...profile.value, discountPercent: draft.value }
     settings.value?.close()
-    ElMessage.success('已保存优惠比例')
+    ElMessage.success(t('已保存优惠比例', 'Discount saved'))
   } catch { /* The dialog retains the draft for retry. */ }
   finally { saving.value = false }
 }

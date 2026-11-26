@@ -1,112 +1,113 @@
 <template>
   <section class="downlines">
     <header v-if="compact && selected" class="customer-heading">
-      <button type="button" class="back" aria-label="返回顾客名单" @click="returnToBuyers"><ArrowLeft /></button>
-      <h1 ref="mobileHeading" tabindex="-1">{{ selected.name || '顾客' }}的订单</h1>
-      <p>仅展示绑定后的现金支付</p>
+      <button type="button" class="back" :aria-label="t('返回顾客名单', 'Back to customers')" @click="returnToBuyers"><ArrowLeft /></button>
+      <h1 ref="mobileHeading" tabindex="-1">{{ selected.name || t('顾客', 'Customer') }}{{ t('的订单', '’s orders') }}</h1>
+      <p>{{ t('仅展示绑定后的现金支付', 'Only cash payments made after referral are shown') }}</p>
     </header>
     <template v-else>
-      <h1>我的下线</h1>
-      <div v-if="compact" class="segments" role="group" aria-label="下线视图">
-        <button type="button" :aria-pressed="segment === 'customers'" @click="segment = 'customers'">顾客名单</button>
-        <button type="button" :aria-pressed="segment === 'orders'" @click="segment = 'orders'">现金订单</button>
+      <h1>{{ t('我的下线', 'My customers') }}</h1>
+      <div v-if="compact" class="segments" role="group" :aria-label="t('下线视图', 'Customer view')">
+        <button type="button" :aria-pressed="segment === 'customers'" @click="segment = 'customers'">{{ t('顾客名单', 'Customer list') }}</button>
+        <button type="button" :aria-pressed="segment === 'orders'" @click="segment = 'orders'">{{ t('现金订单', 'Cash orders') }}</button>
       </div>
     </template>
-    <section v-if="!compact || (!selected && segment === 'customers')" aria-label="顾客名单">
-    <el-table v-if="!compact" class="wide-table" :data="buyers?.items ?? []" v-loading="loadingBuyers" empty-text="暂无绑定顾客">
-      <el-table-column label="顾客" min-width="160">
-        <template #default="{ row }">{{ row.name || '顾客' }} · {{ row.userId }}</template>
+    <section v-if="!compact || (!selected && segment === 'customers')" :aria-label="t('顾客名单', 'Customer list')">
+    <el-table v-if="!compact" class="wide-table" :data="buyers?.items ?? []" v-loading="loadingBuyers" :empty-text="t('暂无绑定顾客', 'No referred customers yet')">
+      <el-table-column :label="t('顾客', 'Customer')" min-width="160">
+        <template #default="{ row }">{{ row.name || t('顾客', 'Customer') }} · {{ row.userId }}</template>
       </el-table-column>
-      <el-table-column label="绑定时间" min-width="170"><template #default="{ row }">{{ displayTime(row.boundAt) }}</template></el-table-column>
-      <el-table-column label="订单" width="110">
-        <template #default="{ row }"><el-button link type="primary" @click="filterOrders(row)">查看订单</el-button></template>
+      <el-table-column :label="t('绑定时间', 'Referred on')" min-width="170"><template #default="{ row }">{{ displayTime(row.boundAt) }}</template></el-table-column>
+      <el-table-column :label="t('订单', 'Orders')" width="110">
+        <template #default="{ row }"><el-button link type="primary" @click="filterOrders(row)">{{ t('查看订单', 'View orders') }}</el-button></template>
       </el-table-column>
     </el-table>
     <div v-else class="customer-list" :aria-busy="loadingBuyers">
-      <p v-if="loadingBuyers" role="status">正在加载顾客…</p>
-      <p v-else-if="buyers && !buyers.items.length">暂无绑定顾客</p>
+      <p v-if="loadingBuyers" role="status">{{ t('正在加载顾客…', 'Loading customers…') }}</p>
+      <p v-else-if="buyers && !buyers.items.length">{{ t('暂无绑定顾客', 'No referred customers yet') }}</p>
       <ul v-else>
         <li v-for="buyer in buyers?.items" :key="buyer.userId">
           <button type="button" class="customer-row" :id="'customer-' + buyer.userId"
-            :aria-label="'查看' + (buyer.name || '顾客') + '的订单'" @click="openCustomer(buyer)">
+            :aria-label="t('查看' + (buyer.name || '顾客') + '的订单', 'View orders for ' + (buyer.name || 'customer'))" @click="openCustomer(buyer)">
             <span class="initial" aria-hidden="true">{{ initial(buyer.name) }}</span>
-            <span class="buyer-info"><strong>{{ buyer.name || '顾客' }}</strong>
-              <span>绑定时间：<time :datetime="buyer.boundAt">{{ dateOnly(buyer.boundAt) }}</time></span>
+            <span class="buyer-info"><strong>{{ buyer.name || t('顾客', 'Customer') }}</strong>
+              <span>{{ t('绑定时间：', 'Referred on: ') }}<time :datetime="buyer.boundAt">{{ dateOnly(buyer.boundAt) }}</time></span>
             </span>
             <ArrowRight aria-hidden="true" />
           </button>
         </li>
       </ul>
     </div>
-    <el-button v-if="!buyers && !loadingBuyers" @click="loadBuyers(buyerPage)">重新加载顾客</el-button>
-    <div v-if="buyers && (buyerPage > 1 || buyers.hasMore)" class="pagination" role="navigation" aria-label="顾客分页">
-      <el-button :disabled="loadingBuyers || buyerPage === 1" @click="loadBuyers(buyerPage - 1)">上一页</el-button>
-      <span aria-live="polite">第 {{ buyerPage }} 页</span>
-      <el-button :disabled="loadingBuyers || !buyers.hasMore" @click="loadBuyers(buyerPage + 1)">下一页</el-button>
+    <el-button v-if="!buyers && !loadingBuyers" @click="loadBuyers(buyerPage)">{{ t('重新加载顾客', 'Reload customers') }}</el-button>
+    <div v-if="buyers && (buyerPage > 1 || buyers.hasMore)" class="pagination" role="navigation" :aria-label="t('顾客分页', 'Customer pages')">
+      <el-button :disabled="loadingBuyers || buyerPage === 1" @click="loadBuyers(buyerPage - 1)">{{ t('上一页', 'Previous') }}</el-button>
+      <span aria-live="polite">{{ t('第', 'Page') }} {{ buyerPage }} {{ t('页', '') }}</span>
+      <el-button :disabled="loadingBuyers || !buyers.hasMore" @click="loadBuyers(buyerPage + 1)">{{ t('下一页', 'Next') }}</el-button>
     </div>
 
     </section>
-    <section v-if="!compact || selected || segment === 'orders'" aria-label="现金订单">
+    <section v-if="!compact || selected || segment === 'orders'" :aria-label="t('现金订单', 'Cash orders')">
     <template v-if="!compact">
-      <h2>现金订单</h2>
-      <p>包含顾客绑定后产生的现金订单，含零佣金订单。</p>
+      <h2>{{ t('现金订单', 'Cash orders') }}</h2>
+      <p>{{ t('包含顾客绑定后产生的现金订单，含零佣金订单。', 'Includes all cash orders placed after referral, including orders with zero commission.') }}</p>
       <div class="filter">
-        <span>{{ selected ? (selected.name || '顾客') + ' · ' + selected.userId : '全部推广顾客' }}</span>
-        <el-button v-if="selected" link type="primary" @click="route.query.customer ? returnToBuyers() : filterOrders(undefined)">查看全部订单</el-button>
+        <span>{{ selected ? (selected.name || t('顾客', 'Customer')) + ' · ' + selected.userId : t('全部推广顾客', 'All referred customers') }}</span>
+        <el-button v-if="selected" link type="primary" @click="route.query.customer ? returnToBuyers() : filterOrders(undefined)">{{ t('查看全部订单', 'View all orders') }}</el-button>
       </div>
     </template>
-    <el-table v-if="!compact" class="wide-table" :data="orders?.items ?? []" v-loading="loadingOrders" empty-text="暂无现金订单">
-      <el-table-column label="推广顾客" min-width="110"><template #default="{ row }">#{{ row.userId }}</template></el-table-column>
-      <el-table-column prop="name" label="商品" min-width="140" />
-      <el-table-column prop="orderNo" label="订单号" min-width="190" />
-      <el-table-column label="实付金额" min-width="120"><template #default="{ row }">{{ row.amount }} {{ row.currency }}</template></el-table-column>
-      <el-table-column label="支付方式" min-width="110"><template #default="{ row }">{{ methods[row.paymentMethod] || row.paymentMethod }}</template></el-table-column>
-      <el-table-column label="订单状态" min-width="110"><template #default="{ row }">{{ statuses[row.status] || row.status }}</template></el-table-column>
-      <el-table-column label="支付时间" min-width="170"><template #default="{ row }">{{ displayTime(row.paidAt) }}</template></el-table-column>
+    <el-table v-if="!compact" class="wide-table" :data="orders?.items ?? []" v-loading="loadingOrders" :empty-text="t('暂无现金订单', 'No cash orders')">
+      <el-table-column :label="t('推广顾客', 'Referred customer')" min-width="110"><template #default="{ row }">#{{ row.userId }}</template></el-table-column>
+      <el-table-column prop="name" :label="t('商品', 'Product')" min-width="140" />
+      <el-table-column prop="orderNo" :label="t('订单号', 'Order number')" min-width="190" />
+      <el-table-column :label="t('实付金额', 'Amount paid')" min-width="120"><template #default="{ row }">{{ row.amount }} {{ row.currency }}</template></el-table-column>
+      <el-table-column :label="t('支付方式', 'Payment method')" min-width="110"><template #default="{ row }">{{ methods[row.paymentMethod] || row.paymentMethod }}</template></el-table-column>
+      <el-table-column :label="t('订单状态', 'Order status')" min-width="110"><template #default="{ row }">{{ statuses[row.status] || row.status }}</template></el-table-column>
+      <el-table-column :label="t('支付时间', 'Paid at')" min-width="170"><template #default="{ row }">{{ displayTime(row.paidAt) }}</template></el-table-column>
     </el-table>
     <div v-else class="order-list" :aria-busy="loadingOrders">
-      <p v-if="loadingOrders" role="status">正在加载订单…</p>
-      <p v-else-if="orders && !orders.items.length">暂无现金订单</p>
+      <p v-if="loadingOrders" role="status">{{ t('正在加载订单…', 'Loading orders…') }}</p>
+      <p v-else-if="orders && !orders.items.length">{{ t('暂无现金订单', 'No cash orders') }}</p>
       <article v-else v-for="order in orders?.items" :key="order.paymentMethod + '/' + order.orderNo" class="order-card">
-        <header><h3>{{ order.name || '商品' }}</h3>
+        <header><h3>{{ order.name || t('商品', 'Product') }}</h3>
           <span class="order-status" :class="{ paid: order.status === 'PAID' }">{{ statuses[order.status] || order.status }}</span>
         </header>
         <strong class="paid-amount">{{ money(order) }}</strong>
         <div class="payment-method"><Wallet aria-hidden="true" />{{ methods[order.paymentMethod] || order.paymentMethod }}</div>
         <div class="order-footer">
-          <span>支付时间：<time :datetime="order.paidAt">{{ compactTime(order.paidAt) }}</time></span>
+          <span>{{ t('支付时间：', 'Paid at: ') }}<time :datetime="order.paidAt">{{ compactTime(order.paidAt) }}</time></span>
           <button type="button" :aria-expanded="expanded === order" @click="expanded = expanded === order ? undefined : order">
-            {{ expanded === order ? '收起详情' : '订单详情' }}<ArrowRight aria-hidden="true" :class="{ turned: expanded === order }" />
+            {{ expanded === order ? t('收起详情', 'Hide details') : t('订单详情', 'Order details') }}<ArrowRight aria-hidden="true" :class="{ turned: expanded === order }" />
           </button>
         </div>
         <dl v-if="expanded === order" class="order-details">
-          <dt>订单号</dt><dd>{{ order.orderNo }}</dd>
-          <dt>顾客编号</dt><dd>#{{ order.userId }}</dd>
-          <dt>支付币种</dt><dd>{{ order.currency }}</dd>
-          <dt>支付时间</dt><dd>{{ displayTime(order.paidAt) }}</dd>
+          <dt>{{ t('订单号', 'Order number') }}</dt><dd>{{ order.orderNo }}</dd>
+          <dt>{{ t('顾客编号', 'Customer ID') }}</dt><dd>#{{ order.userId }}</dd>
+          <dt>{{ t('支付币种', 'Currency') }}</dt><dd>{{ order.currency }}</dd>
+          <dt>{{ t('支付时间', 'Paid at') }}</dt><dd>{{ displayTime(order.paidAt) }}</dd>
         </dl>
       </article>
     </div>
-    <el-button v-if="!orders && !loadingOrders" @click="loadOrders(orderPage)">重新加载订单</el-button>
-    <div v-if="orders && (orderPage > 1 || orders.hasMore)" class="pagination" role="navigation" aria-label="订单分页">
-      <el-button :disabled="loadingOrders || orderPage === 1" @click="loadOrders(orderPage - 1)">上一页</el-button>
-      <span aria-live="polite">第 {{ orderPage }} 页</span>
-      <el-button :disabled="loadingOrders || !orders.hasMore || !orders.nextCursor" @click="loadOrders(orderPage + 1)">下一页</el-button>
+    <el-button v-if="!orders && !loadingOrders" @click="loadOrders(orderPage)">{{ t('重新加载订单', 'Reload orders') }}</el-button>
+    <div v-if="orders && (orderPage > 1 || orders.hasMore)" class="pagination" role="navigation" :aria-label="t('订单分页', 'Order pages')">
+      <el-button :disabled="loadingOrders || orderPage === 1" @click="loadOrders(orderPage - 1)">{{ t('上一页', 'Previous') }}</el-button>
+      <span aria-live="polite">{{ t('第', 'Page') }} {{ orderPage }} {{ t('页', '') }}</span>
+      <el-button :disabled="loadingOrders || !orders.hasMore || !orders.nextCursor" @click="loadOrders(orderPage + 1)">{{ t('下一页', 'Next') }}</el-button>
     </div>
     </section>
   </section>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { t } from '@/i18n'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeft, ArrowRight, Wallet } from '@element-plus/icons-vue'
 import { fetchCashOrders, fetchDownlines, type CashOrder, type Downline, type PromotionPage } from '@/api/offline-promotion'
 
 const buyers = ref<PromotionPage<Downline>>()
 const orders = ref<PromotionPage<CashOrder> & { nextCursor?: string | null }>()
-const statuses: Record<string, string> = { PAID: '已支付', REFUNDED: '已退款', PARTIALLY_REFUNDED: '部分退款', REFUND_PENDING: '退款处理中', REFUND_RECORDED: '有退款记录' }
-const methods: Record<string, string> = { wechat: '微信支付', wechat_pay: '微信支付', wechat_virtual: '微信虚拟支付', alipay: '支付宝', paddle: 'Paddle', apple: 'App Store', paypal: 'PayPal', card: '银行卡', apple_pay: 'Apple Pay', google_pay: 'Google Pay', google_play: 'Google Play' }
+const statuses = computed<Record<string, string>>(() => ({ PAID: t('已支付', 'Paid'), REFUNDED: t('已退款', 'Refunded'), PARTIALLY_REFUNDED: t('部分退款', 'Partially refunded'), REFUND_PENDING: t('退款处理中', 'Refund pending'), REFUND_RECORDED: t('有退款记录', 'Refund recorded') }))
+const methods = computed<Record<string, string>>(() => ({ wechat: t('微信支付', 'WeChat Pay'), wechat_pay: t('微信支付', 'WeChat Pay'), wechat_virtual: t('微信虚拟支付', 'WeChat virtual payment'), alipay: t('支付宝', 'Alipay'), paddle: 'Paddle', apple: 'App Store', paypal: 'PayPal', card: t('银行卡', 'Bank card'), apple_pay: 'Apple Pay', google_pay: 'Google Pay', google_play: 'Google Play' }))
 const formatter = new Intl.DateTimeFormat('zh-CN', {dateStyle:'short', timeStyle:'medium'})
 function displayTime(value: string) {
   const date = new Date(value)
@@ -124,7 +125,7 @@ let enteredFromList = false
 const knownBuyers = new Map<number, Downline>()
 function initial(name: string) {
   const text = name?.trim().replace(/^(?:小|阿)(?=.)/u, '')
-  return Array.from(text || '客')[0]
+  return Array.from(text || t('客', 'C'))[0]
 }
 function dateOnly(value: string) {
   const date = new Date(value)
@@ -210,7 +211,7 @@ watch(() => route.query.customer, async (value, previous) => {
   const id = typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : 0
   if (Number.isSafeInteger(id) && id > 0) {
     const remembered = window.history.state?.customerName
-    filterOrders(knownBuyers.get(id) ?? { userId: id, name: typeof remembered === 'string' ? remembered : '顾客 #' + id, boundAt: '' })
+    filterOrders(knownBuyers.get(id) ?? { userId: id, name: typeof remembered === 'string' ? remembered : t('顾客 #', 'Customer #') + id, boundAt: '' })
     await nextTick()
     mobileHeading.value?.focus()
   } else {

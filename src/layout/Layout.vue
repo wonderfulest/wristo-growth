@@ -8,19 +8,20 @@
         </div>
         <span class="mobile-brand"><img src="/wristo-mark.svg" alt="" /> Wristo Growth</span>
         <div class="header-right">
-          <router-link to="/account">ACCOUNT</router-link>
+          <router-link to="/account">{{ t('账户', 'ACCOUNT') }}</router-link>
           <!-- <a href="#" class="hide-on-mobile">DOCUMENTATION</a> -->
           <router-link to="/api" v-if="hasMerchantRole" class="hide-on-mobile">API</router-link>
         </div>
+        <button class="language-toggle" type="button" :aria-label="t('Switch to English', '切换到中文')" @click="setLocale(locale === 'en' ? 'zh-CN' : 'en')">{{ t('English', '中文') }}</button>
         <div ref="profileMenu" class="user-profile-dropdown" @keydown.esc="closeMenu">
-          <button ref="profileButton" type="button" class="user-avatar-container" aria-label="账号菜单" :aria-expanded="isDropdownOpen" @click="toggleDropdown">
+          <button ref="profileButton" type="button" class="user-avatar-container" :aria-label="t('账号菜单', 'Account menu')" :aria-expanded="isDropdownOpen" @click="toggleDropdown">
             <img :src="userAvatar" class="user-avatar" alt="" />
             <span class="user-profile-name">{{ displayName }}</span>
           </button>
           <div class="dropdown-content" v-if="isDropdownOpen">
-            <router-link to="/account/profile" @click="isDropdownOpen = false">Edit Profile</router-link>
+            <router-link to="/account/profile" @click="isDropdownOpen = false">{{ t('编辑资料', 'Edit Profile') }}</router-link>
             <!-- <a href="/account/password">Change Password</a> -->
-            <a href="#" @click.prevent="handleLogout">Log Out</a>
+            <a href="#" @click.prevent="handleLogout">{{ t('退出登录', 'Log Out') }}</a>
           </div>
         </div>
       </div>
@@ -37,8 +38,8 @@
           <span> Wristo 2026</span>
         </div>
         <div class="footer-links">
-          <a href="#">Terms of Use</a>
-          <a href="#">Privacy Policy</a>
+          <a href="#">{{ t('使用条款', 'Terms of Use') }}</a>
+          <a href="#">{{ t('隐私政策', 'Privacy Policy') }}</a>
           <a href="mailto:support@wristo.io">support@wristo.io</a>
         </div>
         <div class="footer-right">
@@ -50,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { t, setLocale, locale } from '@/i18n'
 import { useUserStore } from '@/store/user'
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { redirectToSsoLogin } from '@/utils/ssoRedirect'
@@ -348,9 +350,11 @@ const toggleDropdown = () => {
     justify-content: flex-start;
   }
 }
+.language-toggle { border: 0; background: transparent; color: inherit; cursor: pointer; padding: 8px; min-height: 44px; }
 .mobile-brand { display: none; }
 @media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
-  .header-inner { justify-content: center; height: 52px; min-height: 52px; }
+  .language-toggle { position: absolute; right: 12px; }
+  .header-inner { position: relative; justify-content: center; height: 52px; min-height: 52px; }
   .logo, .header-right, .user-profile-dropdown, .footer { display: none; }
   .mobile-brand { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 650; }
   .mobile-brand img { width: 26px; height: 26px; }

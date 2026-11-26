@@ -2,44 +2,44 @@
   <div class="profile-page">
     <div class="profile-container">
       <div class="profile-hero">
-        <button type="button" class="avatar-wrapper" aria-label="Change avatar" @click="triggerAvatarUpload">
-          <img :src="form.avatar || defaultAvatar" class="avatar-img" alt="user avatar" />
-          <div class="avatar-overlay">Avatar</div>
+        <button type="button" class="avatar-wrapper" :aria-label="t('更换头像', 'Change avatar')" @click="triggerAvatarUpload">
+          <img :src="form.avatar || defaultAvatar" class="avatar-img" :alt="t('用户头像', 'user avatar')" />
+          <div class="avatar-overlay">{{ t('头像', 'Avatar') }}</div>
         </button>
         <input ref="avatarInputRef" type="file" accept="image/*" hidden @change="onAvatarFileChange" />
         <div class="hero-name">{{ form.nickname || form.username || 'Wristo' }}</div>
         <div class="hero-email">{{ form.email || '—' }}</div>
       </div>
 
-      <nav class="mobile-account-links" aria-label="账户服务">
-        <router-link to="/account/dashboard">推广概览 ›</router-link>
-        <router-link to="/account/coupons">优惠券 ›</router-link>
-        <router-link to="/account/history">交易记录 ›</router-link>
-        <button type="button" @click="logout">退出登录</button>
+      <nav class="mobile-account-links" :aria-label="t('账户服务', 'Account services')">
+        <router-link to="/account/dashboard">{{ t('推广概览 ›', 'Dashboard ›') }}</router-link>
+        <router-link to="/account/coupons">{{ t('优惠券 ›', 'Coupons ›') }}</router-link>
+        <router-link to="/account/history">{{ t('交易记录 ›', 'Deals ›') }}</router-link>
+        <button type="button" @click="logout">{{ t('退出登录', 'Log out') }}</button>
       </nav>
       <template v-if="userInfo">
         <div class="section">
           <div class="section-header">
-            <span class="section-title">Profile</span>
+            <span class="section-title">{{ t('个人资料', 'Profile') }}</span>
           </div>
           <div class="section-card">
             <div class="row">
-              <label class="row-label" for="profile-username">Username</label>
-              <div class="row-value"><el-input id="profile-username" v-model="form.username" placeholder="Enter username" /></div>
+              <label class="row-label" for="profile-username">{{ t('用户名', 'Username') }}</label>
+              <div class="row-value"><el-input id="profile-username" v-model="form.username" :placeholder="t('输入用户名', 'Enter username')" /></div>
             </div>
             <div class="row-divider" />
             <div class="row">
-              <div class="row-label">Email</div>
+              <div class="row-label">{{ t('邮箱', 'Email') }}</div>
               <div class="row-value text-value">{{ form.email || '—' }}</div>
             </div>
             <div class="row-divider" />
             <div class="row">
-              <div class="row-label">Phone</div>
+              <div class="row-label">{{ t('手机号', 'Phone') }}</div>
               <div class="row-value text-value">{{ form.phone || '—' }}</div>
             </div>
             <div class="row-divider" />
             <div class="row">
-              <div class="row-label">Joined at</div>
+              <div class="row-label">{{ t('注册时间', 'Joined at') }}</div>
               <div class="row-value text-value">{{ form.createdAt || '—' }}</div>
             </div>
           </div>
@@ -47,26 +47,26 @@
 
         <div class="section">
           <div class="section-header">
-            <span class="section-title">Payout</span>
+            <span class="section-title">{{ t('收款信息', 'Payout') }}</span>
           </div>
           <div class="section-card">
             <div class="row">
-              <div class="row-label">Payout method</div>
+              <div class="row-label">{{ t('收款方式', 'Payout method') }}</div>
               <div class="row-value">
-                <el-select aria-label="Payout method" v-model="form.payoutMethod" placeholder="Select payout method" style="width: 100%">
-                  <el-option label="Alipay" value="alipay" />
+                <el-select :aria-label="t('收款方式', 'Payout method')" v-model="form.payoutMethod" :placeholder="t('选择收款方式', 'Select payout method')" style="width: 100%">
+                  <el-option :label="t('支付宝', 'Alipay')" value="alipay" />
                   <el-option label="PayPal" value="paypal" />
                 </el-select>
               </div>
             </div>
             <div class="row-divider" />
             <div class="row">
-              <label class="row-label" for="profile-payout-account">Payout account</label>
-              <div class="row-value"><el-input id="profile-payout-account" v-model="form.payoutAccount" placeholder="Enter payout account" /></div>
+              <label class="row-label" for="profile-payout-account">{{ t('收款账号', 'Payout account') }}</label>
+              <div class="row-value"><el-input id="profile-payout-account" v-model="form.payoutAccount" :placeholder="t('输入收款账号', 'Enter payout account')" /></div>
             </div>
             <div class="row-divider" />
             <div class="row save-row">
-              <el-button type="primary" :loading="saving" @click="handleSave">Save</el-button>
+              <el-button type="primary" :loading="saving" @click="handleSave">{{ t('保存', 'Save') }}</el-button>
             </div>
           </div>
         </div>
@@ -77,6 +77,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { useUserStore } from '@/store/user'
 import { redirectToSsoLogin } from '@/utils/ssoRedirect'
 import { ref, reactive, onMounted } from 'vue'
@@ -122,10 +123,10 @@ async function fetchUserInfo() {
         payoutAccount: res.data.payoutAccount || ''
       })
     } else {
-      ElMessage.error(res.msg || 'Failed to load user')
+      ElMessage.error(res.msg || t('无法加载用户信息', 'Failed to load user'))
     }
   } catch (e) {
-    ElMessage.error('Failed to load user')
+    ElMessage.error(t('无法加载用户信息', 'Failed to load user'))
   } finally {
     loading.value = false
   }
@@ -134,11 +135,11 @@ async function fetchUserInfo() {
 function beforeAvatarUpload(file: File) {
   const isImage = file.type.startsWith('image/')
   if (!isImage) {
-    ElMessage.error('Image only')
+    ElMessage.error(t('请选择图片文件', 'Image only'))
   }
   const isLt2M = file.size / 1024 / 1024 < 2
   if (!isLt2M) {
-    ElMessage.error('Image must be < 2MB')
+    ElMessage.error(t('图片须小于 2 MB', 'Image must be < 2MB'))
   }
   return isImage && isLt2M
 }
@@ -150,12 +151,12 @@ async function handleAvatarChange(fileObj: any) {
     const res: ApiResponse<string> = await uploadAvatar(file)
     if (res.code === 0) {
       form.avatar = res.data || ''
-      ElMessage.success('Avatar updated')
+      ElMessage.success(t('头像已更新', 'Avatar updated'))
     } else {
-      ElMessage.error(res.msg || 'Avatar upload failed')
+      ElMessage.error(res.msg || t('头像上传失败', 'Avatar upload failed'))
     }
   } catch (e) {
-    ElMessage.error('Avatar upload failed')
+    ElMessage.error(t('头像上传失败', 'Avatar upload failed'))
   }
 }
 
@@ -182,13 +183,13 @@ async function handleSave() {
     }
     const res: ApiResponse<boolean> = await updatePromUserInfo(updateData)
     if (res.code === 0) {
-      ElMessage.success('Saved')
+      ElMessage.success(t('已保存', 'Saved'))
       await fetchUserInfo()
     } else {
-      ElMessage.error(res.msg || 'Save failed')
+      ElMessage.error(res.msg || t('保存失败', 'Save failed'))
     }
   } catch (e) {
-    ElMessage.error('Save failed')
+    ElMessage.error(t('保存失败', 'Save failed'))
   } finally {
     saving.value = false
   }

@@ -2,8 +2,8 @@
   <div class="promoter-profile-card">
     <div class="header">
       <div>
-        <h2>Promoter profile</h2>
-        <p class="subtitle">Overview</p>
+        <h2>{{ t('推广员资料', 'Promoter profile') }}</h2>
+        <p class="subtitle">{{ t('概览', 'Overview') }}</p>
       </div>
       <el-tag :type="statusTagType" effect="plain">{{ profile?.status || 'unknown' }}</el-tag>
     </div>
@@ -14,27 +14,27 @@
 
     <div v-else class="stats-grid" v-loading="loading">
       <div class="stat-item">
-        <div class="label">Total earned</div>
+        <div class="label">{{ t('累计收益', 'Total earned') }}</div>
         <div class="value">${{ formatCurrency(profile?.totalIncome || 0) }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">Total paid</div>
+        <div class="label">{{ t('已结算', 'Total paid') }}</div>
         <div class="value">${{ formatCurrency(profile?.totalWithdraw || 0) }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">Balance</div>
+        <div class="label">{{ t('余额', 'Balance') }}</div>
         <div class="value highlight">${{ formatCurrency(profile?.balance || 0) }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">Level</div>
+        <div class="label">{{ t('等级', 'Level') }}</div>
         <div class="value">Lv.{{ profile?.level ?? '-' }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">Settle type</div>
+        <div class="label">{{ t('结算类型', 'Settle type') }}</div>
         <div class="value">{{ profile?.settleType || '-' }}</div>
       </div>
       <div class="stat-item">
-        <div class="label">Payout method</div>
+        <div class="label">{{ t('收款方式', 'Payout method') }}</div>
         <div class="value">{{ profile?.payoutMethod || '-' }}</div>
       </div>
       <!-- <div class="stat-item span-2">
@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale, t } from '@/i18n'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -59,7 +60,7 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 
 const formatCurrency = (v: number): string => {
-  return (v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return (v || 0).toLocaleString(locale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 const statusTagType = computed(() => {
@@ -78,19 +79,19 @@ const loadProfile = async () => {
     if (res.code === 0 && res.data) {
       // No payout account: redirect to profile to complete info
       if (!res.data.payoutAccount) {
-        ElMessage.warning('Please add payout info in Profile first')
+        ElMessage.warning(t('请先在个人资料中填写收款信息', 'Please add payout info in Profile first'))
         router.push('/account/profile')
         return
       }
       profile.value = res.data
     } else {
-      error.value = res.msg || 'Failed to load promoter profile'
-      ElMessage.warning('Failed to load promoter profile, check payout info in Profile')
+      error.value = res.msg || t('无法加载推广员资料', 'Failed to load promoter profile')
+      ElMessage.warning(t('无法加载推广员资料，请在个人资料中检查收款信息', 'Failed to load promoter profile, check payout info in Profile'))
       router.push('/account/profile')
     }
   } catch (e) {
-    error.value = 'Network error'
-    ElMessage.warning('Network error, please try again in Profile later')
+    error.value = t('网络错误', 'Network error')
+    ElMessage.warning(t('网络错误，请稍后在个人资料中重试', 'Network error, please try again in Profile later'))
     router.push('/account/profile')
   } finally {
     loading.value = false

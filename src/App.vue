@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import Layout from '@/layout/Layout.vue'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import en from 'element-plus/es/locale/lang/en'
+import { locale } from '@/i18n'
+
 const route = useRoute()
 </script>
 
 <template>
-  <component :is="route.meta.requiresAuth === false ? 'router-view' : Layout" />
+  <el-config-provider :locale="locale === 'en' ? en : zhCn">
+    <component :is="route.meta.requiresAuth === false ? 'router-view' : Layout" />
+  </el-config-provider>
 </template>
 
 <style scoped>

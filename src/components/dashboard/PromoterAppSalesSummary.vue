@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-content">
-    <h3 class="section-title">App sales (promo)</h3>
+    <h3 class="section-title">{{ t('推广应用销量', 'App sales (promo)') }}</h3>
 
     <div v-if="summaryError" class="error-message">
-      <p>Failed to load app sales: {{ summaryError }}</p>
+      <p>{{ t('无法加载应用销量：', 'Failed to load app sales:') }} {{ summaryError }}</p>
     </div>
 
-    <el-table v-if="!compact" v-loading="summaryLoading" :data="summaryList" border style="width: 100%" empty-text="No data">
-      <el-table-column label="App" min-width="240">
+    <el-table v-if="!compact" v-loading="summaryLoading" :data="summaryList" border style="width: 100%" :empty-text="t('暂无数据', 'No data')">
+      <el-table-column :label="t('应用', 'App')" min-width="240">
         <template #default="{ row }">
           <AppCell
             :title="row.app?.name || 'App #' + row.appId"
@@ -18,13 +18,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="salesCount" label="Units" width="120" align="right" />
-      <el-table-column label="Revenue" width="160" align="right">
+      <el-table-column prop="salesCount" :label="t('销量', 'Units')" width="120" align="right" />
+      <el-table-column :label="t('销售额', 'Revenue')" width="160" align="right">
         <template #default="{ row }">
           ${{ formatCurrency(row.totalAmount) }}
         </template>
       </el-table-column>
-      <el-table-column prop="bundleTriggerCount" label="Bundle hits" width="160" align="right" />
+      <el-table-column prop="bundleTriggerCount" :label="t('触发套餐次数', 'Bundle hits')" width="160" align="right" />
     </el-table>
 
     <div v-else class="sales-cards" v-loading="summaryLoading" :aria-busy="summaryLoading">
@@ -32,12 +32,12 @@
         <AppCell :title="row.app?.name || 'App #' + row.appId" :subtitle="'ID: ' + row.appId"
           :image-url="row.app?.garminImageUrl" :link-url="row.app?.garminStoreUrl || null" />
         <dl class="sales-metrics">
-          <div><dt>Units</dt><dd>{{ row.salesCount }}</dd></div>
-          <div><dt>Revenue</dt><dd>${{ formatCurrency(row.totalAmount) }}</dd></div>
-          <div><dt>Bundle hits</dt><dd>{{ row.bundleTriggerCount }}</dd></div>
+          <div><dt>{{ t('销量', 'Units') }}</dt><dd>{{ row.salesCount }}</dd></div>
+          <div><dt>{{ t('销售额', 'Revenue') }}</dt><dd>${{ formatCurrency(row.totalAmount) }}</dd></div>
+          <div><dt>{{ t('触发套餐次数', 'Bundle hits') }}</dt><dd>{{ row.bundleTriggerCount }}</dd></div>
         </dl>
       </article>
-      <p v-if="!summaryList.length && !summaryLoading && !summaryError" class="empty-sales">No data</p>
+      <p v-if="!summaryList.length && !summaryLoading && !summaryError" class="empty-sales">{{ t('暂无数据', 'No data') }}</p>
     </div>
     <div class="table-footer">
       <el-pagination
@@ -50,7 +50,7 @@
         @current-change="handleSummaryCurrentChange"
         @size-change="handleSummarySizeChange"
       ><span v-if="compact" aria-live="polite">{{ summaryPageNum }} / {{ Math.max(1, Math.ceil(summaryTotal / summaryPageSize)) }}</span></el-pagination>
-      <label v-if="compact" class="page-size">Per page
+      <label v-if="compact" class="page-size">{{ t('每页条数', 'Per page') }}
         <select :value="summaryPageSize" @change="handleSummarySizeChange(Number(($event.target as HTMLSelectElement).value))">
           <option v-for="size in [10, 20, 50]" :key="size" :value="size">{{ size }}</option>
         </select>
@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { locale, t } from '@/i18n'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import AppCell from '@/components/common/AppCell.vue'
 import { getMyAppSalesSummaryPage, type PromoterAppSalesSummaryPageQueryDTO } from '@/api/promoter-stats'
@@ -79,7 +80,7 @@ const summaryPageSize = ref(10)
 const summaryTotal = ref(0)
 
 const formatCurrency = (amount: number): string => {
-  return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  return amount.toLocaleString(locale.value, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 const fetchSummaryPage = async () => {
@@ -95,10 +96,10 @@ const fetchSummaryPage = async () => {
       summaryList.value = res.data.list || []
       summaryTotal.value = res.data.total || 0
     } else {
-      summaryError.value = res.msg || 'Failed to load app sales'
+      summaryError.value = res.msg || t('无法加载应用销量', 'Failed to load app sales')
     }
   } catch (e) {
-    summaryError.value = 'Network error'
+    summaryError.value = t('网络错误', 'Network error')
     console.error('Error fetching promoter app sales summary:', e)
   } finally {
     summaryLoading.value = false

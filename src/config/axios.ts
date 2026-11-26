@@ -1,3 +1,4 @@
+import { locale, t } from '@/i18n'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { BizErrorCode } from '@/constant/errorCode'
@@ -17,6 +18,7 @@ const instance = axios.create({
 // 请求拦截器
 instance.interceptors.request.use(config => {
   const userStore = useUserStore()
+  config.headers['Accept-Language'] = locale.value
   const token = userStore.token
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -27,7 +29,7 @@ instance.interceptors.request.use(config => {
 function recoverSession() {
   if (window.location.pathname.startsWith('/auth/')) return
   useUserStore().$reset()
-  ElMessage.error('登录已过期，请重新登录')
+  ElMessage.error(t('登录已过期，请重新登录', 'Your session expired. Please sign in again.'))
   redirectToSsoLogin('growth', 1000, 'retry')
 }
 
@@ -37,7 +39,7 @@ instance.interceptors.response.use(
     if (response.config.responseType === 'blob') {
       if (response.data.type === 'image/png') return response.data
       const details = await response.data.text()
-      let message = '小程序码下载失败，请稍后重试'
+      let message = t('小程序码下载失败，请稍后重试', 'Unable to download the QR code. Try again later.')
       try {
         message = JSON.parse(details).msg || message
       } catch { /* Non-JSON error response */ }
@@ -51,7 +53,7 @@ instance.interceptors.response.use(
       recoverSession()
       return Promise.reject(res)
     } else {
-      ElMessage.error(response.data.msg || '请求失败')
+      ElMessage.error(response.data.msg || t('请求失败', 'Request failed'))
       return Promise.reject(response.data)
     }
   },
@@ -60,7 +62,7 @@ instance.interceptors.response.use(
     if (status === 401 || status === 403) {
       recoverSession()
     } else {
-      ElMessage.error('网络错误，请稍后重试')
+      ElMessage.error(t('网络错误，请稍后重试', 'Network error. Try again later.'))
     }
     return Promise.reject(error)
   }

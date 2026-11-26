@@ -2,61 +2,61 @@
   <div class="account-products-page">
     <div class="products-header">
       <div class="products-header-left">
-        <h1 class="page-title">Promo Codes</h1>
+        <h1 class="page-title">{{ t('推广优惠码', 'Promo Codes') }}</h1>
       </div>
       <form class="products-header-actions" role="search" @submit.prevent="handleSearch">
-        <el-button type="primary" @click="openCreate" class="new-code">New code</el-button>
+        <el-button type="primary" @click="openCreate" class="new-code">{{ t('新建优惠码', 'New code') }}</el-button>
         <el-input
           v-model="searchCode"
-          placeholder="Search by code"
+          :placeholder="t('按优惠码搜索', 'Search by code')"
           clearable
-          class="code-filter" aria-label="Search by promo code"
+          class="code-filter" :aria-label="t('搜索推广优惠码', 'Search by promo code')"
         />
-        <el-select v-model="status" placeholder="Status" clearable class="status-filter" aria-label="Filter codes by status">
-          <el-option label="Enabled" :value="1" />
-          <el-option label="Disabled" :value="0" />
+        <el-select v-model="status" :placeholder="t('状态', 'Status')" clearable class="status-filter" :aria-label="t('按状态筛选优惠码', 'Filter codes by status')">
+          <el-option :label="t('已启用', 'Enabled')" :value="1" />
+          <el-option :label="t('已停用', 'Disabled')" :value="0" />
         </el-select>
-        <el-button type="primary" native-type="submit">Search</el-button>
+        <el-button type="primary" native-type="submit">{{ t('搜索', 'Search') }}</el-button>
       </form>
     </div>
 
     <div class="products-section">
       <el-table v-if="!compact" v-loading="loading" :data="coupons" border stripe style="width: 100%">
-        <el-table-column prop="couponCode" label="Code" width="140" />
-        <el-table-column prop="description" label="Description" min-width="180" />
-        <el-table-column prop="discountType" label="Type" width="100" />
-        <el-table-column prop="discountValue" label="Discount" width="100" />
-        <el-table-column prop="commissionRate" label="Commission" width="110" />
-        <el-table-column label="Usage" width="140">
+        <el-table-column prop="couponCode" :label="t('优惠码', 'Code')" width="140" />
+        <el-table-column prop="description" :label="t('说明', 'Description')" min-width="180" />
+        <el-table-column prop="discountType" :label="t('类型', 'Type')" width="100" />
+        <el-table-column prop="discountValue" :label="t('折扣', 'Discount')" width="100" />
+        <el-table-column prop="commissionRate" :label="t('佣金', 'Commission')" width="110" />
+        <el-table-column :label="t('使用次数', 'Usage')" width="140">
           <template #default="scope">
             <span>{{ scope.row.usedCount || 0 }} / {{ scope.row.maxUse || '-' }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="Status" width="90">
+        <el-table-column prop="status" :label="t('状态', 'Status')" width="90">
           <template #default="scope">
             <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-              {{ scope.row.status === 1 ? 'Enabled' : 'Disabled' }}
+              {{ scope.row.status === 1 ? t('已启用', 'Enabled') : t('已停用', 'Disabled') }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="expireAt" label="Expire at" width="180" />
-        <el-table-column prop="createdAt" label="Created at" width="180" />
-        <el-table-column label="Actions" width="220" fixed="right">
+        <el-table-column prop="expireAt" :label="t('到期时间', 'Expire at')" width="180" />
+        <el-table-column prop="createdAt" :label="t('创建时间', 'Created at')" width="180" />
+        <el-table-column :label="t('操作', 'Actions')" width="220" fixed="right">
           <template #default="scope">
-            <el-button type="primary" link @click="openDetail(scope.row)">View</el-button>
-            <el-button type="primary" link @click="openEdit(scope.row)">Edit</el-button>
+            <el-button type="primary" link @click="openDetail(scope.row)">{{ t('查看', 'View') }}</el-button>
+            <el-button type="primary" link @click="openEdit(scope.row)">{{ t('编辑', 'Edit') }}</el-button>
             <el-button
               v-if="scope.row.status === 0"
               type="primary"
               link
               @click="handleEnable(scope.row)"
-            >Enable</el-button>
+            >{{ t('启用', 'Enable') }}</el-button>
             <el-button
               v-else
               type="warning"
               link
               @click="handleDisable(scope.row)"
-            >Disable</el-button>
+            >{{ t('停用', 'Disable') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -64,25 +64,25 @@
       <div v-else class="coupon-list" v-loading="loading" :aria-busy="loading">
         <article v-for="row in coupons" :key="row.id" class="coupon-card">
           <header><h2>{{ row.couponCode }}</h2>
-            <el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? 'Enabled' : 'Disabled' }}</el-tag>
+            <el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? t('已启用', 'Enabled') : t('已停用', 'Disabled') }}</el-tag>
           </header>
           <p v-if="row.description" class="description">{{ row.description }}</p>
           <dl>
-            <div><dt>Discount</dt><dd>{{ row.discountValue }}{{ row.discountType === 'PERCENT' ? '%' : '' }}</dd></div>
-            <div><dt>Commission</dt><dd>{{ row.commissionRate }}%</dd></div>
-            <div><dt>Usage</dt><dd>{{ row.usedCount ?? 0 }} / {{ row.maxUse ?? '–' }}</dd></div>
+            <div><dt>{{ t('折扣', 'Discount') }}</dt><dd>{{ row.discountValue }}{{ row.discountType === 'PERCENT' ? '%' : '' }}</dd></div>
+            <div><dt>{{ t('佣金', 'Commission') }}</dt><dd>{{ row.commissionRate }}%</dd></div>
+            <div><dt>{{ t('使用次数', 'Usage') }}</dt><dd>{{ row.usedCount ?? 0 }} / {{ row.maxUse ?? '–' }}</dd></div>
           </dl>
           <footer>
-            <el-button :aria-label="`View ${row.couponCode}`" @click="openDetail(row)">View</el-button>
-            <el-button :aria-label="`Edit ${row.couponCode}`" @click="openEdit(row)">Edit</el-button>
+            <el-button :aria-label="`${t('查看', 'View')} ${row.couponCode}`" @click="openDetail(row)">{{ t('查看', 'View') }}</el-button>
+            <el-button :aria-label="`${t('编辑', 'Edit')} ${row.couponCode}`" @click="openEdit(row)">{{ t('编辑', 'Edit') }}</el-button>
             <el-button :type="row.status === 1 ? 'warning' : 'primary'" plain
-              :aria-label="`${row.status === 1 ? 'Disable' : 'Enable'} ${row.couponCode}`"
+              :aria-label="`${row.status === 1 ? t('停用', 'Disable') : t('启用', 'Enable')} ${row.couponCode}`"
               @click="row.status === 1 ? handleDisable(row) : handleEnable(row)">
-              {{ row.status === 1 ? 'Disable' : 'Enable' }}
+              {{ row.status === 1 ? t('停用', 'Disable') : t('启用', 'Enable') }}
             </el-button>
           </footer>
         </article>
-        <p v-if="!coupons.length && !loading" class="empty-message">No promo codes</p>
+        <p v-if="!coupons.length && !loading" class="empty-message">{{ t('暂无优惠码', 'No promo codes') }}</p>
       </div>
 
       <div class="pagination-bar">
@@ -98,71 +98,71 @@
         ><span v-if="compact" class="page-count" aria-live="polite">{{ pageNum }} / {{ Math.max(1, Math.ceil(total / pageSize)) }}</span></el-pagination>
       </div>
     </div>
-      <el-dialog v-model="detailDialogVisible" title="Promo code details" :width="compact ? 'calc(100% - 24px)' : '800px'" class="coupon-dialog" align-center>
+      <el-dialog v-model="detailDialogVisible" :title="t('优惠码详情', 'Promo code details')" :width="compact ? 'calc(100% - 24px)' : '800px'" class="coupon-dialog" align-center>
         <div v-if="detailRow" class="coupon-details">
-          <p>Code: {{ detailRow.couponCode }}</p>
-          <p>Description: {{ detailRow.description || '-' }}</p>
-          <p>Type: {{ detailRow.discountType }}</p>
-          <p>Discount: {{ detailRow.discountValue }}</p>
-          <p>Commission: {{ detailRow.commissionRate }}%</p>
-          <p>Max uses: {{ detailRow.maxUse ?? '-' }}</p>
-          <p>Used: {{ detailRow.usedCount ?? 0 }}</p>
-          <p>Status: {{ detailRow.status === 1 ? 'Enabled' : 'Disabled' }}</p>
-          <p>Expire at: {{ detailRow.expireAt || '-' }}</p>
-          <p>Created at: {{ detailRow.createdAt }}</p>
+          <p>{{ t('优惠码：', 'Code:') }} {{ detailRow.couponCode }}</p>
+          <p>{{ t('说明：', 'Description:') }} {{ detailRow.description || '-' }}</p>
+          <p>{{ t('类型：', 'Type:') }} {{ detailRow.discountType }}</p>
+          <p>{{ t('折扣：', 'Discount:') }} {{ detailRow.discountValue }}</p>
+          <p>{{ t('佣金：', 'Commission:') }} {{ detailRow.commissionRate }}%</p>
+          <p>{{ t('使用上限：', 'Max uses:') }} {{ detailRow.maxUse ?? '-' }}</p>
+          <p>{{ t('已使用：', 'Used:') }} {{ detailRow.usedCount ?? 0 }}</p>
+          <p>{{ t('状态：', 'Status:') }} {{ detailRow.status === 1 ? t('已启用', 'Enabled') : t('已停用', 'Disabled') }}</p>
+          <p>{{ t('到期时间：', 'Expire at:') }} {{ detailRow.expireAt || '-' }}</p>
+          <p>{{ t('创建时间：', 'Created at:') }} {{ detailRow.createdAt }}</p>
         </div>
       </el-dialog>
 
-      <el-dialog v-model="editDialogVisible" :title="isCreateMode ? 'New promo code' : 'Edit promo code'" :width="compact ? 'calc(100% - 24px)' : '800px'" class="coupon-dialog" align-center>
+      <el-dialog v-model="editDialogVisible" :title="isCreateMode ? t('新建优惠码', 'New promo code') : t('编辑优惠码', 'Edit promo code')" :width="compact ? 'calc(100% - 24px)' : '800px'" class="coupon-dialog" align-center>
         <el-form label-width="90px" :label-position="compact ? 'top' : 'right'" @submit.prevent="submitEdit">
-          <el-form-item label="Code" required>
-            <el-input v-model="editForm.couponCode" aria-label="Promo code" placeholder="Enter or generate code" :disabled="!isCreateMode" />
+          <el-form-item :label="t('优惠码', 'Code')" required>
+            <el-input v-model="editForm.couponCode" :aria-label="t('推广优惠码', 'Promo code')" :placeholder="t('输入或生成优惠码', 'Enter or generate code')" :disabled="!isCreateMode" />
             <div v-if="isCreateMode" class="code-generator">
-              <label for="coupon-length">Code length</label>
+              <label for="coupon-length">{{ t('优惠码长度', 'Code length') }}</label>
               <el-input-number id="coupon-length" v-model="generateLength" :min="4" :max="16" :step="1" controls-position="right" />
-              <el-button :loading="generateLoading" @click="handleGenerateCode">Random</el-button>
+              <el-button :loading="generateLoading" @click="handleGenerateCode">{{ t('随机生成', 'Random') }}</el-button>
             </div>
           </el-form-item>
-          <el-form-item label="Description">
+          <el-form-item :label="t('说明', 'Description')">
             <el-input v-model="editForm.description" type="textarea" rows="2" />
           </el-form-item>
-          <el-form-item label="Type">
-            <el-select v-model="editForm.discountType" placeholder="Discount type" disabled style="width: 100%">
-              <el-option label="Percent (PERCENT)" value="PERCENT" />
+          <el-form-item :label="t('类型', 'Type')">
+            <el-select v-model="editForm.discountType" :placeholder="t('折扣类型', 'Discount type')" disabled style="width: 100%">
+              <el-option :label="t('百分比', 'Percent (PERCENT)')" value="PERCENT" />
             </el-select>
           </el-form-item>
-          <el-form-item label="Discount">
+          <el-form-item :label="t('折扣', 'Discount')">
             <el-input-number v-model="editForm.discountValue" :min="0" :max="100000" :step="0.01" disabled />
             <span style="margin-left: 6px">%</span>
           </el-form-item>
-          <el-form-item label="Commission">
+          <el-form-item :label="t('佣金', 'Commission')">
             <el-input-number v-model="editForm.commissionRate" :min="0" :max="100" :step="0.01" disabled />
             <span style="margin-left: 6px">%</span>
           </el-form-item>
-          <el-form-item label="Max uses">
+          <el-form-item :label="t('使用上限', 'Max uses')">
             <el-input-number v-model="editForm.maxUse" :min="100" :max="1000000" />
           </el-form-item>
-          <el-form-item label="Expire at">
-            <input v-if="compact" v-model="mobileExpiry" type="datetime-local" step="1" class="mobile-date" aria-label="Expire at" />
+          <el-form-item :label="t('到期时间', 'Expire at')">
+            <input v-if="compact" v-model="mobileExpiry" type="datetime-local" step="1" class="mobile-date" :aria-label="t('到期时间', 'Expire at')" />
             <el-date-picker v-else
               v-model="editForm.expireAt"
               type="datetime"
               value-format="YYYY-MM-DD HH:mm:ss"
-              placeholder="Select expire time"
+              :placeholder="t('选择到期时间', 'Select expire time')"
               style="width: 100%"
             />
           </el-form-item>
-          <el-form-item label="Status">
-            <el-select v-model="(editForm as any).status" placeholder="Select status" style="width: 100%">
-              <el-option label="Enabled" :value="1" />
-              <el-option label="Disabled" :value="0" />
+          <el-form-item :label="t('状态', 'Status')">
+            <el-select v-model="(editForm as any).status" :placeholder="t('选择状态', 'Select status')" style="width: 100%">
+              <el-option :label="t('已启用', 'Enabled')" :value="1" />
+              <el-option :label="t('已停用', 'Disabled')" :value="0" />
             </el-select>
           </el-form-item>
         </el-form>
         <template #footer>
           <span class="dialog-footer">
-            <el-button @click="editDialogVisible = false">Cancel</el-button>
-            <el-button type="primary" @click="submitEdit">Save</el-button>
+            <el-button @click="editDialogVisible = false">{{ t('取消', 'Cancel') }}</el-button>
+            <el-button type="primary" @click="submitEdit">{{ t('保存', 'Save') }}</el-button>
           </span>
         </template>
       </el-dialog>
@@ -170,6 +170,7 @@
 </template>
 
 <script setup lang="ts">
+import { t } from '@/i18n'
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import { fetchPromoterCouponPage, enablePromoterCoupon, disablePromoterCoupon, updatePromoterCoupon, createPromoterCoupon, generatePromoterCouponCode, type PromoterCouponPageQuery, type PromoterCouponCreateDTO, type PromoterCouponUpdateDTO } from '@/api/promoter-coupons'
@@ -226,10 +227,10 @@ const loadCoupons = async () => {
       coupons.value = res.data.list
       total.value = res.data.total
     } else {
-      ElMessage.error(res.msg || 'Failed to load promo codes')
+      ElMessage.error(res.msg || t('加载优惠码失败', 'Failed to load promo codes'))
     }
   } catch (e) {
-    if (version === queryVersion) ElMessage.error('Failed to load promo codes')
+    if (version === queryVersion) ElMessage.error(t('加载优惠码失败', 'Failed to load promo codes'))
   } finally {
     if (version === queryVersion) loading.value = false
   }
@@ -250,7 +251,7 @@ const submitEdit = async () => {
         expireAt: (editForm.value as any).expireAt ?? null
       }
       await createPromoterCoupon(payload)
-      ElMessage.success('Created')
+      ElMessage.success(t('已创建', 'Created'))
     } else {
       if (!editForm.value.id) return
       const dto: PromoterCouponUpdateDTO = {
@@ -261,7 +262,7 @@ const submitEdit = async () => {
         expireAt: (editForm.value as any).expireAt || undefined
       }
       await updatePromoterCoupon(dto)
-      ElMessage.success('Saved')
+      ElMessage.success(t('已保存', 'Saved'))
     }
     editDialogVisible.value = false
     loadCoupons()
@@ -315,7 +316,7 @@ const openCreate = () => {
 const handleGenerateCode = async () => {
   const len = generateLength.value || 8
   if (len < 4 || len > 16) {
-    ElMessage.warning('Code length must be 4-16')
+    ElMessage.warning(t('优惠码长度须为 4 至 16 位', 'Code length must be 4-16'))
     return
   }
   const finalLen = len
@@ -325,10 +326,10 @@ const handleGenerateCode = async () => {
     if (res.code === 0 && typeof res.data === 'string') {
       editForm.value.couponCode = res.data
     } else {
-      ElMessage.error(res.msg || 'Failed to generate code')
+      ElMessage.error(res.msg || t('生成优惠码失败', 'Failed to generate code'))
     }
   } catch (e) {
-    ElMessage.error('Failed to generate code')
+    ElMessage.error(t('生成优惠码失败', 'Failed to generate code'))
   } finally {
     generateLoading.value = false
   }
@@ -337,7 +338,7 @@ const handleGenerateCode = async () => {
 const handleEnable = async (row: PromoterCoupon) => {
   try {
     await enablePromoterCoupon(row.id)
-    ElMessage.success('Enabled')
+    ElMessage.success(t('已启用', 'Enabled'))
     loadCoupons()
   } catch (e) {
     // 错误提示由 axios 拦截器统一处理
@@ -347,7 +348,7 @@ const handleEnable = async (row: PromoterCoupon) => {
 const handleDisable = async (row: PromoterCoupon) => {
   try {
     await disablePromoterCoupon(row.id)
-    ElMessage.success('Disabled')
+    ElMessage.success(t('已停用', 'Disabled'))
     loadCoupons()
   } catch (e) {
     // 错误提示由 axios 拦截器统一处理
