@@ -1,25 +1,28 @@
 <template>
   <section class="materials" aria-labelledby="materials-title">
-    <h1 id="materials-title">{{ t('小程序码推广', 'Mini program QR codes') }}</h1>
+    <h1 id="materials-title">{{ checkout ? t('下单优惠码推广', 'Checkout promo codes') : t('小程序码推广', 'Mini program QR codes') }}</h1>
     <div v-if="!profile" class="feedback" aria-live="polite">
       <span v-if="loading">{{ t('正在加载推广资料…', 'Loading referral details…') }}</span>
       <button v-else @click="loadProfile">{{ t('重新加载推广资料', 'Reload referral details') }}</button>
     </div>
     <template v-else>
-      <div class="qr-versions" role="group" :aria-label="t('选择小程序版本', 'Select mini program version')">
-        <button :aria-pressed="!trial" @click="selectVersion(false)">{{ t('正式版小程序码', 'Live mini program QR code') }}</button>
-        <button :aria-pressed="trial" @click="selectVersion(true)">{{ t('体验版小程序码', 'Trial mini program QR code') }}</button>
-      </div>
-      <p v-if="trial" class="hint">{{ t('请使用有体验权限的微信扫码。', 'Scan with a WeChat account that has trial access.') }}</p>
-      <div class="qr-area" :aria-busy="loadingQr">
-        <button v-if="qrUrl" class="qr-image" :aria-label="t('预览', 'Preview ') + qrLabel" @click="preview?.showModal()">
-          <img :src="qrUrl" :alt="qrLabel" @error="clearQr" />
-        </button>
-        <span v-else-if="loadingQr" role="status">{{ t('正在加载小程序码…', 'Loading QR code…') }}</span>
-        <button v-else class="outline" @click="loadQr">{{ t('重新加载小程序码', 'Reload QR code') }}</button>
-      </div>
-      <div class="code-strip"><span>{{ t('推广码', 'Referral code') }}</span><strong>{{ profile.code }}</strong></div>
-      <button class="primary action" :disabled="!qrUrl" @click="saveQr">{{ t('保存', 'Save ') }}{{ qrLabel }}</button>
+      <template v-if="!checkout">
+        <div class="qr-versions" role="group" :aria-label="t('选择小程序版本', 'Select mini program version')">
+          <button :aria-pressed="!trial" @click="selectVersion(false)">{{ t('正式版小程序码', 'Live mini program QR code') }}</button>
+          <button :aria-pressed="trial" @click="selectVersion(true)">{{ t('体验版小程序码', 'Trial mini program QR code') }}</button>
+        </div>
+        <p v-if="trial" class="hint">{{ t('请使用有体验权限的微信扫码。', 'Scan with a WeChat account that has trial access.') }}</p>
+        <div class="qr-area" :aria-busy="loadingQr">
+          <button v-if="qrUrl" class="qr-image" :aria-label="t('预览', 'Preview ') + qrLabel" @click="preview?.showModal()">
+            <img :src="qrUrl" :alt="qrLabel" @error="clearQr" />
+          </button>
+          <span v-else-if="loadingQr" role="status">{{ t('正在加载小程序码…', 'Loading QR code…') }}</span>
+          <button v-else class="outline" @click="loadQr">{{ t('重新加载小程序码', 'Reload QR code') }}</button>
+        </div>
+      </template>
+      <div id="referral-code" class="code-strip"><span>{{ t('推广码', 'Referral code') }}</span><strong>{{ profile.code }}</strong></div>
+      <button v-if="!checkout" class="primary action" :disabled="!qrUrl" @click="saveQr">{{ t('保存', 'Save ') }}{{ qrLabel }}</button>
+      <p class="hint">{{ t('顾客在国内支付宝或微信小程序购买单品时可选填此码，优惠和佣金按下方比例计算。', 'Customers can enter this code for individual items at domestic Alipay checkout or in the WeChat mini program. The discount and commission rates below apply.') }}</p>
       <button class="outline action" @click="copyCode">{{ t('复制推广码', 'Copy referral code') }}</button>
 
       <section class="discount">
@@ -76,10 +79,11 @@
 
 <script setup lang="ts">
 import { t } from '@/i18n'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { downloadOfflineQr, fetchOfflineProfile, saveOfflineDiscount, type OfflineProfile } from '@/api/offline-promotion'
 
+const props = defineProps<{ checkout?: boolean }>()
 const profile = ref<OfflineProfile>()
 const loading = ref(true)
 const trial = ref(false)
@@ -100,10 +104,12 @@ async function loadProfile() {
   loading.value = true
   try {
     profile.value = (await fetchOfflineProfile()).data
-    if (profile.value && !disposed) void loadQr()
+    if (!props.checkout && profile.value && !disposed) void loadQr()
   } catch { /* The API client displays the error. */ }
   finally { loading.value = false }
 }
+
+watch(() => props.checkout, checkout => { if (!checkout && profile.value) void loadQr() })
 
 function selectVersion(next: boolean) {
   if (trial.value === next) return

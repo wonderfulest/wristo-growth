@@ -57,7 +57,8 @@ const router = createRouter({
         {
           path: 'coupons',
           name: 'Coupons',
-          redirect: '/account/home'
+          component: () => import('@/views/account/OfflineMaterials.vue'),
+          props: { checkout: true }
         },
         {
           path: 'history',
