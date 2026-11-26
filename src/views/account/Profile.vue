@@ -9,13 +9,9 @@
         <input ref="avatarInputRef" type="file" accept="image/*" hidden @change="onAvatarFileChange" />
         <div class="hero-name">{{ form.nickname || form.username || 'Wristo' }}</div>
         <div class="hero-email">{{ form.email || '—' }}</div>
+        <button type="button" class="logout-button" @click="logout">{{ t('退出登录', 'Log out') }}</button>
       </div>
 
-      <nav class="account-links" :aria-label="t('账户服务', 'Account services')">
-        <router-link to="/account/dashboard">{{ t('推广概览 ›', 'Dashboard ›') }}</router-link>
-        <router-link to="/account/history">{{ t('交易记录 ›', 'Deals ›') }}</router-link>
-        <button type="button" @click="logout">{{ t('退出登录', 'Log out') }}</button>
-      </nav>
       <template v-if="userInfo">
         <div class="section">
           <div class="section-header">
@@ -266,6 +262,15 @@ async function logout() {
   color: #86868b;
   font-size: 0.9375rem;
 }
+.logout-button {
+  min-height: 44px;
+  padding: 0 18px;
+  color: #255a42;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
 .section {
   display: flex;
   flex-direction: column;
@@ -342,6 +347,4 @@ async function logout() {
     text-align: left;
   }
 }
-  .account-links { display: grid; grid-template-columns: 1fr 1fr; margin: 12px 0; gap: 1px; }
-  .account-links a, .account-links button { display: grid; place-items: center; min-height: 44px; background: #f4f7f5; border: 0; font: inherit; font-size: 14px; color: #255a42; text-decoration: none; }
-</style> 
+</style>
