@@ -57,8 +57,7 @@ const router = createRouter({
         {
           path: 'coupons',
           name: 'Coupons',
-          component: () => import('@/views/account/Coupons.vue'),
-          meta: { requiresAuth: true }
+          redirect: '/account/home'
         },
         {
           path: 'history',

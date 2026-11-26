@@ -7,8 +7,7 @@
           <img class="logo-image" src="https://cdn.wristo.io/brands/wristo-logo/svg/wristo-logo-horizontal.svg" alt="Wristo" />
         </div>
         <span class="mobile-brand"><img src="/wristo-mark.svg" alt="" /> Wristo Growth</span>
-        <div class="header-right">
-          <router-link to="/account">{{ t('账户', 'ACCOUNT') }}</router-link>
+        <div v-if="hasMerchantRole" class="header-right">
           <!-- <a href="#" class="hide-on-mobile">DOCUMENTATION</a> -->
           <router-link to="/api" v-if="hasMerchantRole" class="hide-on-mobile">API</router-link>
         </div>

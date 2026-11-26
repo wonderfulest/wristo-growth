@@ -32,10 +32,7 @@
           <div><dt>{{ t('我的佣金', 'My commission') }}</dt><dd>{{ 40 - profile.discountPercent }}%</dd></div>
         </dl>
       </section>
-      <div class="desktop-links">
-        <router-link to="/account/earnings">{{ t('查看推广收益', 'View earnings') }}</router-link>
-        <router-link to="/account/downlines">{{ t('查看我的下线', 'View my customers') }}</router-link>
-      </div>
+
     </template>
 
     <dialog ref="preview" class="preview" aria-labelledby="preview-title">
@@ -223,8 +220,6 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .split > div + div { border-left: 1px solid #c4d1c8; }
 dt { font-size: .85rem; }
 dd { color: #06593d; font-weight: 700; font-size: 1.4rem; font-variant-numeric: tabular-nums; }
-.desktop-links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 1rem; }
-.desktop-links a { color: var(--green); }
 dialog { box-sizing: border-box; color: inherit; border: none; border-radius: 16px; width: min(92vw, 425px); max-height: 94dvh; padding: 20px; overflow-y: auto; }
 dialog::backdrop { background: rgb(14 25 18 / 42%); }
 dialog p { color: #56625c; font-size: .9rem; }
@@ -242,7 +237,6 @@ dialog p { color: #56625c; font-size: .9rem; }
 .handle { display: none; }
 @media (max-width: 768px) {
   .materials { max-width: 490px; padding: 12px 16px 18px; border-radius: 0; }
-  .desktop-links { display: none; }
   .sheet { margin: auto 0 0; width: 100%; max-width: 100%; border-radius: 18px 18px 0 0; padding: 10px 16px max(16px, env(safe-area-inset-bottom)); }
   .handle { display: block; width: 42px; height: 5px; margin: 0 auto; background: #bac2bd; border-radius: 8px; }
 }

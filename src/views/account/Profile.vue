@@ -11,9 +11,8 @@
         <div class="hero-email">{{ form.email || '—' }}</div>
       </div>
 
-      <nav class="mobile-account-links" :aria-label="t('账户服务', 'Account services')">
+      <nav class="account-links" :aria-label="t('账户服务', 'Account services')">
         <router-link to="/account/dashboard">{{ t('推广概览 ›', 'Dashboard ›') }}</router-link>
-        <router-link to="/account/coupons">{{ t('下单优惠码推广 ›', 'Checkout promo codes ›') }}</router-link>
         <router-link to="/account/history">{{ t('交易记录 ›', 'Deals ›') }}</router-link>
         <button type="button" @click="logout">{{ t('退出登录', 'Log out') }}</button>
       </nav>
@@ -343,9 +342,6 @@ async function logout() {
     text-align: left;
   }
 }
-.mobile-account-links { display: none; }
-@media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
-  .mobile-account-links { display: grid; grid-template-columns: 1fr 1fr; margin: 12px 0; gap: 1px; }
-  .mobile-account-links a, .mobile-account-links button { display: grid; place-items: center; min-height: 44px; background: #f4f7f5; border: 0; font: inherit; font-size: 14px; color: #255a42; text-decoration: none; }
-}
+  .account-links { display: grid; grid-template-columns: 1fr 1fr; margin: 12px 0; gap: 1px; }
+  .account-links a, .account-links button { display: grid; place-items: center; min-height: 44px; background: #f4f7f5; border: 0; font: inherit; font-size: 14px; color: #255a42; text-decoration: none; }
 </style> 

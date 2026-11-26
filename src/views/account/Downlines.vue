@@ -6,7 +6,7 @@
       <p>{{ t('仅展示绑定后的现金支付', 'Only cash payments made after referral are shown') }}</p>
     </header>
     <template v-else>
-      <h1>{{ t('我的下线', 'My customers') }}</h1>
+      <h1>{{ t('我的顾客', 'My customers') }}</h1>
       <div v-if="compact" class="segments" role="group" :aria-label="t('下线视图', 'Customer view')">
         <button type="button" :aria-pressed="segment === 'customers'" @click="segment = 'customers'">{{ t('顾客名单', 'Customer list') }}</button>
         <button type="button" :aria-pressed="segment === 'orders'" @click="segment = 'orders'">{{ t('现金订单', 'Cash orders') }}</button>
