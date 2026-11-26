@@ -2,9 +2,10 @@
   <div class="account-layout">
     <div class="header-sub">
       <nav class="header-sub-nav" :aria-label="t('推广后台导航', 'Promoter navigation')">
-        <router-link to="/account/dashboard" exact-active-class="active">{{ t('概览', 'Dashboard') }}</router-link>
-        <router-link to="/account/coupons" exact-active-class="active">{{ t('优惠码', 'Coupons') }}</router-link>
-        <router-link to="/account/materials" exact-active-class="active">{{ t('线下推广素材', 'Offline materials') }}</router-link>
+        <router-link to="/account/home" exact-active-class="active">{{ t('推广首页', 'Promotion home') }}</router-link>
+        <router-link to="/account/dashboard" exact-active-class="active">{{ t('推广概览', 'Dashboard') }}</router-link>
+        <router-link to="/account/coupons" exact-active-class="active">{{ t('下单优惠码推广', 'Checkout promo codes') }}</router-link>
+        <router-link to="/account/materials" exact-active-class="active">{{ t('小程序码推广', 'Mini program QR codes') }}</router-link>
         <router-link to="/account/downlines" exact-active-class="active">{{ t('我的下线', 'My customers') }}</router-link>
         <router-link to="/account/earnings" exact-active-class="active">{{ t('收益', 'Earnings') }}</router-link>
         <router-link to="/account/history" exact-active-class="active">{{ t('交易', 'Deals') }}</router-link>
@@ -17,7 +18,7 @@
     </main>
     <nav class="mobile-tabs" :aria-label="t('推广后台主导航', 'Main promoter navigation')">
       <router-link v-for="tab in tabs" :key="tab.path" :to="'/account/' + tab.path"
-        :class="{ selected: tab.path === 'profile' && legacyPages.includes($route.name as string) }">
+        :class="{ selected: (tab.path === 'profile' && legacyPages.includes($route.name as string)) || (tab.path === 'home' && toolPages.includes($route.name as string)) }">
         <component :is="tab.icon" aria-hidden="true" />{{ tab.label }}
       </router-link>
     </nav>
@@ -28,12 +29,13 @@
 import { t } from '@/i18n'
 import { Promotion, User, Coin, Avatar } from '@element-plus/icons-vue'
 const tabs = [
-  { path: 'materials', get label() { return t('推广', 'Promote') }, icon: Promotion },
+  { path: 'home', get label() { return t('推广首页', 'Promotion home') }, icon: Promotion },
   { path: 'downlines', get label() { return t('下线', 'Customers') }, icon: User },
   { path: 'earnings', get label() { return t('收益', 'Earnings') }, icon: Coin },
   { path: 'profile', get label() { return t('我的', 'Profile') }, icon: Avatar }
 ]
-const legacyPages = ['Dashboard', 'Coupons', 'History']
+const legacyPages = ['Dashboard', 'History']
+const toolPages = ['OfflineMaterials', 'Coupons']
 </script>
 
 <style lang="scss" scoped>
@@ -111,7 +113,7 @@ const legacyPages = ['Dashboard', 'Coupons', 'History']
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  gap: clamp(16px, 5vw, 72px);
+  gap: 4px clamp(12px, 2vw, 30px);
   flex-wrap: wrap;
   padding: 0 0 0 8px;
   align-items: center;

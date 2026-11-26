@@ -2,7 +2,7 @@
   <div class="account-products-page">
     <div class="products-header">
       <div class="products-header-left">
-        <h1 class="page-title">{{ t('推广优惠码', 'Promo Codes') }}</h1>
+        <h1 class="page-title">{{ t('下单优惠码推广', 'Checkout promo codes') }}</h1>
       </div>
       <form class="products-header-actions" role="search" @submit.prevent="handleSearch">
         <el-button type="primary" @click="openCreate" class="new-code">{{ t('新建优惠码', 'New code') }}</el-button>

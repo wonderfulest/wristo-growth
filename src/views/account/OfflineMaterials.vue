@@ -1,6 +1,6 @@
 <template>
   <section class="materials" aria-labelledby="materials-title">
-    <h1 id="materials-title">{{ t('我的推广码', 'My referral code') }}</h1>
+    <h1 id="materials-title">{{ t('小程序码推广', 'Mini program QR codes') }}</h1>
     <div v-if="!profile" class="feedback" aria-live="polite">
       <span v-if="loading">{{ t('正在加载推广资料…', 'Loading referral details…') }}</span>
       <button v-else @click="loadProfile">{{ t('重新加载推广资料', 'Reload referral details') }}</button>

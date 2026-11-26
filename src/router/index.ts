@@ -19,14 +19,19 @@ const router = createRouter({
 
     {
       path: '/account',
-      redirect: '/account/materials',
+      redirect: '/account/home',
       component: () => import('@/views/account/Account.vue'),
       meta: { requiresAuth: true },
       children: [
         {
           path: '',
           name: 'Account',
-          redirect: '/account/materials'
+          redirect: '/account/home'
+        },
+        {
+          path: 'home',
+          name: 'PromotionHome',
+          component: () => import('@/views/account/PromotionHome.vue')
         },
         {
           path: 'dashboard',
@@ -71,7 +76,7 @@ const router = createRouter({
     },
     {
       path: '/',
-      redirect: '/account/materials'
+      redirect: '/account/home'
     },
     {
       path: '/:pathMatch(.*)*',

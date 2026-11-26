@@ -13,7 +13,7 @@
 
       <nav class="mobile-account-links" :aria-label="t('账户服务', 'Account services')">
         <router-link to="/account/dashboard">{{ t('推广概览 ›', 'Dashboard ›') }}</router-link>
-        <router-link to="/account/coupons">{{ t('优惠券 ›', 'Coupons ›') }}</router-link>
+        <router-link to="/account/coupons">{{ t('下单优惠码推广 ›', 'Checkout promo codes ›') }}</router-link>
         <router-link to="/account/history">{{ t('交易记录 ›', 'Deals ›') }}</router-link>
         <button type="button" @click="logout">{{ t('退出登录', 'Log out') }}</button>
       </nav>
