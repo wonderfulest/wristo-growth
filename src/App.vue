@@ -5,7 +5,7 @@ const route = useRoute()
 </script>
 
 <template>
-  <component :is="['/auth/callback'].includes(route.path) ? 'router-view' : Layout" />
+  <component :is="route.meta.requiresAuth === false ? 'router-view' : Layout" />
 </template>
 
 <style scoped>

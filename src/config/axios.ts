@@ -24,6 +24,13 @@ instance.interceptors.request.use(config => {
   return config
 })
 
+function recoverSession() {
+  if (window.location.pathname.startsWith('/auth/')) return
+  useUserStore().$reset()
+  ElMessage.error('登录已过期，请重新登录')
+  redirectToSsoLogin('growth', 1000, 'retry')
+}
+
 // 响应拦截器
 instance.interceptors.response.use(
   async (response) => {
@@ -40,6 +47,9 @@ instance.interceptors.response.use(
     const res: ApiResponse<any> = response.data
     if (res.code === BizErrorCode.SUCCESS) {
       return response.data // 返回原始 response
+    } else if (res.code === 401 || res.code === 403) {
+      recoverSession()
+      return Promise.reject(res)
     } else {
       ElMessage.error(response.data.msg || '请求失败')
       return Promise.reject(response.data)
@@ -48,11 +58,7 @@ instance.interceptors.response.use(
   error => {
     const status = error.response?.status
     if (status === 401 || status === 403) {
-      const userStore = useUserStore()
-      userStore.token = ''
-      userStore.userInfo = null
-      ElMessage.error('登录已过期，请重新登录')
-      redirectToSsoLogin('growth', 1000)
+      recoverSession()
     } else {
       ElMessage.error('网络错误，请稍后重试')
     }

@@ -6,6 +6,11 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
+      path: '/auth/sign-in',
+      component: () => import('@/views/AuthCallback.vue'),
+      meta: { requiresAuth: false }
+    },
+    {
       path: '/auth/callback',
       name: 'AuthCallback',
       component: () => import('@/views/AuthCallback.vue'),
@@ -82,7 +87,7 @@ router.beforeEach((to, _, next) => {
 
   if (requiresAuth && !userStore.userInfo) {
     redirectToSsoLogin('growth')
-    return
+    return next(false)
   } else {
     next()
   }

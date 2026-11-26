@@ -6,15 +6,20 @@
       <button v-else @click="loadProfile">重新加载推广资料</button>
     </div>
     <template v-else>
+      <div class="qr-versions" role="group" aria-label="选择小程序版本">
+        <button :aria-pressed="!trial" @click="selectVersion(false)">正式版小程序码</button>
+        <button :aria-pressed="trial" @click="selectVersion(true)">体验版小程序码</button>
+      </div>
+      <p v-if="trial" class="hint">请使用有体验权限的微信扫码。</p>
       <div class="qr-area" :aria-busy="loadingQr">
-        <button v-if="qrUrl" class="qr-image" aria-label="预览推广小程序码" @click="preview?.showModal()">
-          <img :src="qrUrl" alt="专属推广小程序码" @error="clearQr" />
+        <button v-if="qrUrl" class="qr-image" :aria-label="'预览' + qrLabel" @click="preview?.showModal()">
+          <img :src="qrUrl" :alt="qrLabel" @error="clearQr" />
         </button>
         <span v-else-if="loadingQr" role="status">正在加载小程序码…</span>
         <button v-else class="outline" @click="loadQr">重新加载小程序码</button>
       </div>
       <div class="code-strip"><span>推广码</span><strong>{{ profile.code }}</strong></div>
-      <button class="primary action" :disabled="!qrUrl" @click="saveQr">保存小程序码</button>
+      <button class="primary action" :disabled="!qrUrl" @click="saveQr">保存{{ qrLabel }}</button>
       <button class="outline action" @click="copyCode">复制推广码</button>
 
       <section class="discount">
@@ -34,7 +39,7 @@
     </template>
 
     <dialog ref="preview" class="preview" aria-labelledby="preview-title">
-      <div class="section-heading"><h2 id="preview-title">推广小程序码</h2><button aria-label="关闭预览" @click="preview?.close()">×</button></div>
+      <div class="section-heading"><h2 id="preview-title">{{ qrLabel }}</h2><button aria-label="关闭预览" @click="preview?.close()">×</button></div>
       <img v-if="qrUrl" :src="qrUrl" alt="可长按保存的推广小程序码" />
       <p>长按图片可保存到手机。</p>
       <button class="outline action" @click="downloadQr">下载 PNG</button>
@@ -79,6 +84,9 @@ import { downloadOfflineQr, fetchOfflineProfile, saveOfflineDiscount, type Offli
 
 const profile = ref<OfflineProfile>()
 const loading = ref(true)
+const trial = ref(false)
+const qrLabel = computed(() => trial.value ? '体验版小程序码' : '正式版小程序码')
+let requestId = 0
 const qrUrl = ref('')
 const loadingQr = ref(false)
 const settings = ref<HTMLDialogElement>()
@@ -99,14 +107,23 @@ async function loadProfile() {
   finally { loading.value = false }
 }
 
+function selectVersion(next: boolean) {
+  if (trial.value === next) return
+  trial.value = next
+  clearQr()
+  loadingQr.value = false
+  void loadQr()
+}
+
 async function loadQr() {
   if (loadingQr.value || qrUrl.value) return
+  const id = ++requestId
   loadingQr.value = true
   try {
-    const blob = await downloadOfflineQr()
-    if (!disposed) qrUrl.value = URL.createObjectURL(blob)
+    const blob = await downloadOfflineQr(trial.value)
+    if (!disposed && id === requestId) qrUrl.value = URL.createObjectURL(blob)
   } catch { /* Keep the retry button available. */ }
-  finally { loadingQr.value = false }
+  finally { if (id === requestId) loadingQr.value = false }
 }
 
 function clearQr() {
@@ -118,7 +135,7 @@ function downloadQr() {
   if (!qrUrl.value || !profile.value) return
   const link = document.createElement('a')
   link.href = qrUrl.value
-  link.download = 'wristo-' + profile.value.code + '.png'
+  link.download = 'wristo-' + profile.value.code + (trial.value ? '-trial.png' : '.png')
   document.body.append(link)
   link.click()
   link.remove()
@@ -178,6 +195,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.qr-versions { display: flex; margin: 16px 0 0; padding: 3px; background: #eff4f1; border-radius: 12px; }
+.qr-versions button { flex: 1; }
+.qr-versions button[aria-pressed="true"] { background: #086642; color: white; font-weight: 650; }
 .materials { --green: #086642; max-width: 510px; padding: 24px; margin: 0 auto; border-radius: 16px; color: #18201c; background: white; }
 h1, h2, h3, dl, dd { margin: 0; }
 h1 { font-size: 1.5rem; }
