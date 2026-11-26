@@ -11,7 +11,7 @@
           <!-- <a href="#" class="hide-on-mobile">DOCUMENTATION</a> -->
           <router-link to="/api" v-if="hasMerchantRole" class="hide-on-mobile">API</router-link>
         </div>
-        <button class="language-toggle" type="button" :aria-label="t('Switch to English', '切换到中文')" @click="setLocale(locale === 'en' ? 'zh-CN' : 'en')">{{ t('English', '中文') }}</button>
+        <button class="language-toggle" type="button" :aria-label="t('Switch to English', '切换到中文')" @click="setLocale(locale === 'en' ? 'zh-CN' : 'en')">{{ t('EN', '中文') }}</button>
         <div ref="profileMenu" class="user-profile-dropdown" @keydown.esc="closeMenu">
           <button ref="profileButton" type="button" class="user-avatar-container" :aria-label="t('账号菜单', 'Account menu')" :aria-expanded="isDropdownOpen" @click="toggleDropdown">
             <img :src="userAvatar" class="user-avatar" alt="" />
@@ -349,10 +349,23 @@ const toggleDropdown = () => {
     justify-content: flex-start;
   }
 }
-.language-toggle { border: 0; background: transparent; color: inherit; cursor: pointer; padding: 8px; min-height: 44px; }
+.language-toggle {
+  margin-inline: auto 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: #58616a;
+  font-size: 13px;
+  cursor: pointer;
+}
+.language-toggle:hover, .language-toggle:focus-visible {
+  color: $color-link;
+}
 .mobile-brand { display: none; }
 @media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
-  .language-toggle { position: absolute; right: 12px; }
+  .language-toggle { position: absolute; right: 12px; margin: 0; }
   .header-inner { position: relative; justify-content: center; height: 52px; min-height: 52px; }
   .logo, .header-right, .user-profile-dropdown, .footer { display: none; }
   .mobile-brand { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 650; }
