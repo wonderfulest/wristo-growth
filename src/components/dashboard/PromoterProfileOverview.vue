@@ -173,4 +173,11 @@ onMounted(loadProfile)
   margin-top: 8px;
   color: #721c24;
 }
+@media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  .promoter-profile-card { min-width: 0; padding: 16px; border-radius: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .stat-item { min-width: 0; padding: 10px; }
+  .stat-item .value { overflow-wrap: anywhere; font-size: clamp(15px, 4vw, 18px); }
+}
 </style>

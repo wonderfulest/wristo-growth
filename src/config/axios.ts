@@ -26,7 +26,17 @@ instance.interceptors.request.use(config => {
 
 // 响应拦截器
 instance.interceptors.response.use(
-  (response) => {
+  async (response) => {
+    if (response.config.responseType === 'blob') {
+      if (response.data.type === 'image/png') return response.data
+      const details = await response.data.text()
+      let message = '小程序码下载失败，请稍后重试'
+      try {
+        message = JSON.parse(details).msg || message
+      } catch { /* Non-JSON error response */ }
+      ElMessage.error(message)
+      throw new Error(message)
+    }
     const res: ApiResponse<any> = response.data
     if (res.code === BizErrorCode.SUCCESS) {
       return response.data // 返回原始 response

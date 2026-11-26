@@ -14,20 +14,35 @@ const router = createRouter({
 
     {
       path: '/account',
-      redirect: '/account/dashboard',
+      redirect: '/account/materials',
       component: () => import('@/views/account/Account.vue'),
       meta: { requiresAuth: true },
       children: [
         {
           path: '',
           name: 'Account',
-          redirect: '/account/dashboard'
+          redirect: '/account/materials'
         },
         {
           path: 'dashboard',
           name: 'Dashboard',
           component: () => import('@/views/account/Dashboard.vue'),
           meta: { requiresAuth: true }
+        },
+        {
+          path: 'materials',
+          name: 'OfflineMaterials',
+          component: () => import('@/views/account/OfflineMaterials.vue')
+        },
+        {
+          path: 'downlines',
+          name: 'Downlines',
+          component: () => import('@/views/account/Downlines.vue')
+        },
+        {
+          path: 'earnings',
+          name: 'Earnings',
+          component: () => import('@/views/account/Earnings.vue')
         },
         {
           path: 'coupons',
@@ -51,7 +66,7 @@ const router = createRouter({
     },
     {
       path: '/',
-      redirect: '/account/dashboard'
+      redirect: '/account/materials'
     },
     {
       path: '/:pathMatch(.*)*',

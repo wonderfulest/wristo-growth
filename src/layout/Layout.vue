@@ -6,18 +6,19 @@
         <div class="logo">
           <img class="logo-image" src="https://cdn.wristo.io/brands/wristo-logo/svg/wristo-logo-horizontal.svg" alt="Wristo" />
         </div>
+        <span class="mobile-brand"><img src="/wristo-mark.svg" alt="" /> Wristo Growth</span>
         <div class="header-right">
           <router-link to="/account">ACCOUNT</router-link>
           <!-- <a href="#" class="hide-on-mobile">DOCUMENTATION</a> -->
           <router-link to="/api" v-if="hasMerchantRole" class="hide-on-mobile">API</router-link>
         </div>
-        <div class="user-profile-dropdown">
-          <div class="user-avatar-container" @click="toggleDropdown">
-            <img :src="userAvatar" class="user-avatar" alt="user avatar" />
+        <div ref="profileMenu" class="user-profile-dropdown" @keydown.esc="closeMenu">
+          <button ref="profileButton" type="button" class="user-avatar-container" aria-label="账号菜单" :aria-expanded="isDropdownOpen" @click="toggleDropdown">
+            <img :src="userAvatar" class="user-avatar" alt="" />
             <span class="user-profile-name">{{ displayName }}</span>
-          </div>
+          </button>
           <div class="dropdown-content" v-if="isDropdownOpen">
-            <a href="/account/profile">Edit Profile</a>
+            <router-link to="/account/profile" @click="isDropdownOpen = false">Edit Profile</router-link>
             <!-- <a href="/account/password">Change Password</a> -->
             <a href="#" @click.prevent="handleLogout">Log Out</a>
           </div>
@@ -50,7 +51,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from '@/store/user'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { redirectToSsoLogin } from '@/utils/ssoRedirect'
 const userStore = useUserStore()
 const defaultAvatar = 'https://cdn.wristo.io/test/avatar/561aae25-41bd-47ab-974e-7231f5a850e8.png'
@@ -62,12 +63,22 @@ const handleLogout = async () => {
 }
 const hasMerchantRole = computed(() => {
   const roles: any[] = (userStore.userInfo && Array.isArray((userStore.userInfo as any).roles)) ? (userStore.userInfo as any).roles : []
-  console.log(111, roles, userStore.userInfo)
   return roles.some((role: any) => role.roleCode === 'ROLE_MERCHANT')
 })
 
 // 下拉菜单控制
 const isDropdownOpen = ref(false)
+const profileMenu = ref<HTMLElement>()
+const profileButton = ref<HTMLButtonElement>()
+function closeMenu() {
+  isDropdownOpen.value = false
+  profileButton.value?.focus()
+}
+function dismissOutside(event: PointerEvent) {
+  if (isDropdownOpen.value && !profileMenu.value?.contains(event.target as Node)) isDropdownOpen.value = false
+}
+onMounted(() => document.addEventListener('pointerdown', dismissOutside))
+onBeforeUnmount(() => document.removeEventListener('pointerdown', dismissOutside))
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value
 }
@@ -248,6 +259,9 @@ const toggleDropdown = () => {
   position: relative;
 }
 .user-avatar-container {
+  border: 0;
+  background: transparent;
+  font: inherit;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -284,7 +298,7 @@ const toggleDropdown = () => {
   display: inline;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
   .header-inner {
     height: 56px;
     padding: 0 16px;
@@ -313,10 +327,18 @@ const toggleDropdown = () => {
     align-items: flex-start;
     gap: 12px;
   }
-  .global-layout {
-    overflow-x: hidden;
-    max-width: 100vw;
+  .main-content {
+    padding: 8px max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+    min-width: 0;
   }
+  .header-inner { padding-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right)); }
+  .user-avatar-container, .header-right a, .dropdown-content a, .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .header-right .hide-on-mobile { display: none; }
+  .dropdown-content { top: calc(100% + 6px); }
   .footer {
     position: static; /* prevent jumping on mobile */
     padding: 16px 0;
@@ -325,5 +347,13 @@ const toggleDropdown = () => {
   .footer-links {
     justify-content: flex-start;
   }
+}
+.mobile-brand { display: none; }
+@media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  .header-inner { justify-content: center; height: 52px; min-height: 52px; }
+  .logo, .header-right, .user-profile-dropdown, .footer { display: none; }
+  .mobile-brand { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 650; }
+  .mobile-brand img { width: 26px; height: 26px; }
+  .main-content { background: white; }
 }
 </style>

@@ -2,15 +2,21 @@
   <div class="profile-page">
     <div class="profile-container">
       <div class="profile-hero">
-        <div class="avatar-wrapper" @click="triggerAvatarUpload">
+        <button type="button" class="avatar-wrapper" aria-label="Change avatar" @click="triggerAvatarUpload">
           <img :src="form.avatar || defaultAvatar" class="avatar-img" alt="user avatar" />
           <div class="avatar-overlay">Avatar</div>
-          <input ref="avatarInputRef" type="file" accept="image/*" hidden @change="onAvatarFileChange" />
-        </div>
+        </button>
+        <input ref="avatarInputRef" type="file" accept="image/*" hidden @change="onAvatarFileChange" />
         <div class="hero-name">{{ form.nickname || form.username || 'Wristo' }}</div>
         <div class="hero-email">{{ form.email || '—' }}</div>
       </div>
 
+      <nav class="mobile-account-links" aria-label="账户服务">
+        <router-link to="/account/dashboard">推广概览 ›</router-link>
+        <router-link to="/account/coupons">优惠券 ›</router-link>
+        <router-link to="/account/history">交易记录 ›</router-link>
+        <button type="button" @click="logout">退出登录</button>
+      </nav>
       <template v-if="userInfo">
         <div class="section">
           <div class="section-header">
@@ -18,8 +24,8 @@
           </div>
           <div class="section-card">
             <div class="row">
-              <div class="row-label">Username</div>
-              <div class="row-value"><el-input v-model="form.username" placeholder="Enter username" /></div>
+              <label class="row-label" for="profile-username">Username</label>
+              <div class="row-value"><el-input id="profile-username" v-model="form.username" placeholder="Enter username" /></div>
             </div>
             <div class="row-divider" />
             <div class="row">
@@ -47,7 +53,7 @@
             <div class="row">
               <div class="row-label">Payout method</div>
               <div class="row-value">
-                <el-select v-model="form.payoutMethod" placeholder="Select payout method" style="width: 100%">
+                <el-select aria-label="Payout method" v-model="form.payoutMethod" placeholder="Select payout method" style="width: 100%">
                   <el-option label="Alipay" value="alipay" />
                   <el-option label="PayPal" value="paypal" />
                 </el-select>
@@ -55,8 +61,8 @@
             </div>
             <div class="row-divider" />
             <div class="row">
-              <div class="row-label">Payout account</div>
-              <div class="row-value"><el-input v-model="form.payoutAccount" placeholder="Enter payout account" /></div>
+              <label class="row-label" for="profile-payout-account">Payout account</label>
+              <div class="row-value"><el-input id="profile-payout-account" v-model="form.payoutAccount" placeholder="Enter payout account" /></div>
             </div>
             <div class="row-divider" />
             <div class="row save-row">
@@ -71,6 +77,8 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from '@/store/user'
+import { redirectToSsoLogin } from '@/utils/ssoRedirect'
 import { ref, reactive, onMounted } from 'vue'
 import { getPromUserInfo, updatePromUserInfo, uploadAvatar } from '@/api/user'
 import type { PromUserVO, PromUserUpdateDTO, ApiResponse } from '@/types/api'
@@ -185,10 +193,15 @@ async function handleSave() {
     saving.value = false
   }
 }
+async function logout() {
+  await useUserStore().logout()
+  redirectToSsoLogin('growth')
+}
 </script>
 
 <style scoped>
 .profile-page {
+  box-sizing: border-box;
   width: 100%;
   min-height: calc(100vh - 80px);
   background: #f2f2f7;
@@ -211,6 +224,8 @@ async function handleSave() {
   gap: 6px;
 }
 .avatar-wrapper {
+  border: 0;
+  padding: 0;
   position: relative;
   width: 100px;
   height: 100px;
@@ -237,7 +252,7 @@ async function handleSave() {
   opacity: 0;
   transition: opacity 0.2s ease;
 }
-.avatar-wrapper:hover .avatar-overlay {
+.avatar-wrapper:hover .avatar-overlay, .avatar-wrapper:focus-visible .avatar-overlay {
   opacity: 1;
 }
 .hero-name {
@@ -305,7 +320,16 @@ async function handleSave() {
 .loading-card {
   padding: 18px;
 }
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  .profile-page { padding: 0 0 24px; }
+  .profile-container { padding-top: 12px; gap: 20px; min-width: 0; }
+  .hero-name, .hero-email { max-width: 100%; overflow-wrap: anywhere; text-align: center; }
+  .avatar-wrapper { width: 80px; height: 80px; }
+  .row { gap: 6px; padding: 12px 14px; }
+  .row :deep(.el-input__wrapper), .row :deep(.el-select__wrapper), .save-row :deep(button) { min-height: 44px; }
+  .row :deep(input) { font-size: 16px; }
+  .save-row :deep(button) { width: 100%; }
+
   .row {
     align-items: flex-start;
     flex-direction: column;
@@ -317,5 +341,10 @@ async function handleSave() {
     width: 100%;
     text-align: left;
   }
+}
+.mobile-account-links { display: none; }
+@media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  .mobile-account-links { display: grid; grid-template-columns: 1fr 1fr; margin: 12px 0; gap: 1px; }
+  .mobile-account-links a, .mobile-account-links button { display: grid; place-items: center; min-height: 44px; background: #f4f7f5; border: 0; font: inherit; font-size: 14px; color: #255a42; text-decoration: none; }
 }
 </style> 

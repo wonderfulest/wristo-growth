@@ -20,4 +20,7 @@ import PromoterAppSalesSummary from '@/components/dashboard/PromoterAppSalesSumm
   flex-direction: column;
   gap: 24px;
 }
+@media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  .promoter-dashboard { min-width: 0; padding: 0; gap: 20px; }
+}
 </style>

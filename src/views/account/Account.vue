@@ -1,9 +1,12 @@
 <template>
   <div class="account-layout">
     <div class="header-sub">
-      <nav class="header-sub-nav">
+      <nav class="header-sub-nav" aria-label="推广后台导航">
         <router-link to="/account/dashboard" exact-active-class="active">Dashboard</router-link>
         <router-link to="/account/coupons" exact-active-class="active">Coupons</router-link>
+        <router-link to="/account/materials" exact-active-class="active">线下推广素材</router-link>
+        <router-link to="/account/downlines" exact-active-class="active">我的下线</router-link>
+        <router-link to="/account/earnings" exact-active-class="active">收益</router-link>
         <router-link to="/account/history" exact-active-class="active">Deals</router-link>
         <router-link to="/account/profile" exact-active-class="active">Profile</router-link>
       </nav>
@@ -12,10 +15,24 @@
     <main class="main-content">
       <router-view />
     </main>
+    <nav class="mobile-tabs" aria-label="推广后台主导航">
+      <router-link v-for="tab in tabs" :key="tab.path" :to="'/account/' + tab.path"
+        :class="{ selected: tab.path === 'profile' && legacyPages.includes($route.name as string) }">
+        <component :is="tab.icon" aria-hidden="true" />{{ tab.label }}
+      </router-link>
+    </nav>
   </div>
 </template>
 
 <script setup lang="ts">
+import { Promotion, User, Coin, Avatar } from '@element-plus/icons-vue'
+const tabs = [
+  { path: 'materials', label: '推广', icon: Promotion },
+  { path: 'downlines', label: '下线', icon: User },
+  { path: 'earnings', label: '收益', icon: Coin },
+  { path: 'profile', label: '我的', icon: Avatar }
+]
+const legacyPages = ['Dashboard', 'Coupons', 'History']
 </script>
 
 <style lang="scss" scoped>
@@ -93,7 +110,8 @@
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  gap: 88px;
+  gap: clamp(16px, 5vw, 72px);
+  flex-wrap: wrap;
   padding: 0 0 0 8px;
   align-items: center;
 }
@@ -126,26 +144,21 @@
   min-height: 400px;
 }
 
-/* Mobile responsiveness for Account page */
-@media (max-width: 768px) {
-  .header-sub-nav {
-    width: 100%;
-    max-width: 100%;
-    padding: 0 12px;
-    gap: 16px;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    box-sizing: border-box;
+.mobile-tabs { display: none; }
+@media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  .header-sub { display: none; }
+  .account-layout { min-height: 0; background: white; }
+  .main-content { min-width: 0; margin: 0; padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .mobile-tabs {
+    display: grid; grid-template-columns: repeat(4, 1fr); position: fixed;
+    bottom: 0; inset-inline: 0; z-index: 20; background: white; border-top: 1px solid #e3e8e5;
+    padding: 2px env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
-  .header-sub-nav a {
-    font-size: $font-size-sm;
-    padding: 6px 0 4px 0;
+  .mobile-tabs a {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; min-height: 57px; color: #626b67; font-size: 12px; text-decoration: none;
   }
-  .main-content {
-    max-width: 100%;
-    margin: 16px auto 0 auto;
-    padding: 0 12px;
-    box-sizing: border-box;
-  }
+  .mobile-tabs svg { width: 22px; height: 22px; }
+  .mobile-tabs .router-link-active, .mobile-tabs .selected { color: #167649; font-weight: 700; }
 }
 </style>

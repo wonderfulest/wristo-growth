@@ -2,27 +2,26 @@
   <div class="account-products-page">
     <div class="products-header">
       <div class="products-header-left">
-        <span class="page-title">Promo Codes</span>
+        <h1 class="page-title">Promo Codes</h1>
       </div>
-      <div class="products-header-actions">
-        <el-button type="primary" @click="openCreate" style="margin-right: 12px">New code</el-button>
+      <form class="products-header-actions" role="search" @submit.prevent="handleSearch">
+        <el-button type="primary" @click="openCreate" class="new-code">New code</el-button>
         <el-input
           v-model="searchCode"
           placeholder="Search by code"
           clearable
-          style="width: 220px; margin-right: 12px;"
-          @keyup.enter="handleSearch"
+          class="code-filter" aria-label="Search by promo code"
         />
-        <el-select v-model="status" placeholder="Status" clearable style="width: 140px; margin-right: 12px;">
+        <el-select v-model="status" placeholder="Status" clearable class="status-filter" aria-label="Filter codes by status">
           <el-option label="Enabled" :value="1" />
           <el-option label="Disabled" :value="0" />
         </el-select>
-        <el-button type="primary" @click="handleSearch">Search</el-button>
-      </div>
+        <el-button type="primary" native-type="submit">Search</el-button>
+      </form>
     </div>
 
     <div class="products-section">
-      <el-table :data="coupons" border stripe style="width: 100%">
+      <el-table v-if="!compact" v-loading="loading" :data="coupons" border stripe style="width: 100%">
         <el-table-column prop="couponCode" label="Code" width="140" />
         <el-table-column prop="description" label="Description" min-width="180" />
         <el-table-column prop="discountType" label="Type" width="100" />
@@ -62,21 +61,45 @@
         </el-table-column>
       </el-table>
 
+      <div v-else class="coupon-list" v-loading="loading" :aria-busy="loading">
+        <article v-for="row in coupons" :key="row.id" class="coupon-card">
+          <header><h2>{{ row.couponCode }}</h2>
+            <el-tag :type="row.status === 1 ? 'success' : 'info'">{{ row.status === 1 ? 'Enabled' : 'Disabled' }}</el-tag>
+          </header>
+          <p v-if="row.description" class="description">{{ row.description }}</p>
+          <dl>
+            <div><dt>Discount</dt><dd>{{ row.discountValue }}{{ row.discountType === 'PERCENT' ? '%' : '' }}</dd></div>
+            <div><dt>Commission</dt><dd>{{ row.commissionRate }}%</dd></div>
+            <div><dt>Usage</dt><dd>{{ row.usedCount ?? 0 }} / {{ row.maxUse ?? '–' }}</dd></div>
+          </dl>
+          <footer>
+            <el-button :aria-label="`View ${row.couponCode}`" @click="openDetail(row)">View</el-button>
+            <el-button :aria-label="`Edit ${row.couponCode}`" @click="openEdit(row)">Edit</el-button>
+            <el-button :type="row.status === 1 ? 'warning' : 'primary'" plain
+              :aria-label="`${row.status === 1 ? 'Disable' : 'Enable'} ${row.couponCode}`"
+              @click="row.status === 1 ? handleDisable(row) : handleEnable(row)">
+              {{ row.status === 1 ? 'Disable' : 'Enable' }}
+            </el-button>
+          </footer>
+        </article>
+        <p v-if="!coupons.length && !loading" class="empty-message">No promo codes</p>
+      </div>
+
       <div class="pagination-bar">
         <el-pagination
           background
-          layout="sizes, prev, pager, next"
+          :layout="compact ? 'sizes, prev, slot, next' : 'sizes, prev, pager, next'"
           :total="total"
           :page-size="pageSize"
           :current-page="pageNum"
           :page-sizes="pageSizes"
           @current-change="handlePageChange"
           @size-change="handleSizeChange"
-        />
+        ><span v-if="compact" class="page-count" aria-live="polite">{{ pageNum }} / {{ Math.max(1, Math.ceil(total / pageSize)) }}</span></el-pagination>
       </div>
     </div>
-      <el-dialog v-model="detailDialogVisible" title="Promo code details" width="800px">
-        <div v-if="detailRow">
+      <el-dialog v-model="detailDialogVisible" title="Promo code details" :width="compact ? 'calc(100% - 24px)' : '800px'" class="coupon-dialog" align-center>
+        <div v-if="detailRow" class="coupon-details">
           <p>Code: {{ detailRow.couponCode }}</p>
           <p>Description: {{ detailRow.description || '-' }}</p>
           <p>Type: {{ detailRow.discountType }}</p>
@@ -90,34 +113,15 @@
         </div>
       </el-dialog>
 
-      <el-dialog v-model="editDialogVisible" :title="isCreateMode ? 'New promo code' : 'Edit promo code'" width="800px">
-        <el-form label-width="90px">
+      <el-dialog v-model="editDialogVisible" :title="isCreateMode ? 'New promo code' : 'Edit promo code'" :width="compact ? 'calc(100% - 24px)' : '800px'" class="coupon-dialog" align-center>
+        <el-form label-width="90px" :label-position="compact ? 'top' : 'right'" @submit.prevent="submitEdit">
           <el-form-item label="Code" required>
-            <el-input
-              v-model="editForm.couponCode"
-              placeholder="Enter or generate code"
-              :disabled="!isCreateMode"
-            >
-              <template #append>
-                <el-input-number
-                  v-model="generateLength"
-                  :min="4"
-                  :max="16"
-                  :step="1"
-                  size="small"
-                  controls-position="right"
-                  style="width: 90px; margin-right: 4px"
-                  :disabled="!isCreateMode"
-                />
-                <el-button
-                  type="primary"
-                  size="small"
-                  :loading="generateLoading"
-                  :disabled="!isCreateMode"
-                  @click.stop="handleGenerateCode"
-                >Random</el-button>
-              </template>
-            </el-input>
+            <el-input v-model="editForm.couponCode" aria-label="Promo code" placeholder="Enter or generate code" :disabled="!isCreateMode" />
+            <div v-if="isCreateMode" class="code-generator">
+              <label for="coupon-length">Code length</label>
+              <el-input-number id="coupon-length" v-model="generateLength" :min="4" :max="16" :step="1" controls-position="right" />
+              <el-button :loading="generateLoading" @click="handleGenerateCode">Random</el-button>
+            </div>
           </el-form-item>
           <el-form-item label="Description">
             <el-input v-model="editForm.description" type="textarea" rows="2" />
@@ -139,7 +143,8 @@
             <el-input-number v-model="editForm.maxUse" :min="100" :max="1000000" />
           </el-form-item>
           <el-form-item label="Expire at">
-            <el-date-picker
+            <input v-if="compact" v-model="mobileExpiry" type="datetime-local" step="1" class="mobile-date" aria-label="Expire at" />
+            <el-date-picker v-else
               v-model="editForm.expireAt"
               type="datetime"
               value-format="YYYY-MM-DD HH:mm:ss"
@@ -165,10 +170,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { ElMessage } from 'element-plus'
 import { fetchPromoterCouponPage, enablePromoterCoupon, disablePromoterCoupon, updatePromoterCoupon, createPromoterCoupon, generatePromoterCouponCode, type PromoterCouponPageQuery, type PromoterCouponCreateDTO, type PromoterCouponUpdateDTO } from '@/api/promoter-coupons'
 import type { PromoterCoupon, ApiResponse, PageResponse } from '@/types/api'
+
+const viewport = window.matchMedia('(max-width: 800px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape)')
+const compact = ref(viewport.matches)
+const syncViewport = () => { compact.value = viewport.matches }
+onMounted(() => viewport.addEventListener('change', syncViewport))
+onBeforeUnmount(() => viewport.removeEventListener('change', syncViewport))
 
 const coupons = ref<PromoterCoupon[]>([])
 const pageNum = ref(1)
@@ -185,10 +196,21 @@ const detailRow = ref<PromoterCoupon | null>(null)
 const editDialogVisible = ref(false)
 const isCreateMode = ref(false)
 const editForm = ref<Partial<PromoterCouponCreateDTO & { id?: number }>>({})
+const mobileExpiry = computed({
+  get: () => editForm.value.expireAt?.replace(' ', 'T') ?? '',
+  set: (value: string) => {
+    const date = value.replace('T', ' ')
+    editForm.value.expireAt = date ? (date.length === 16 ? date + ':00' : date) : null
+  }
+})
+const loading = ref(false)
+let queryVersion = 0
 const generateLength = ref(8)
 const generateLoading = ref(false)
 
 const loadCoupons = async () => {
+  const version = ++queryVersion
+  loading.value = true
   const query: PromoterCouponPageQuery = {
     couponCodeLike: searchCode.value || undefined,
     status: status.value,
@@ -199,6 +221,7 @@ const loadCoupons = async () => {
 
   try {
     const res: ApiResponse<PageResponse<PromoterCoupon>> = await fetchPromoterCouponPage(query)
+    if (version !== queryVersion) return
     if (res.code === 0 && res.data) {
       coupons.value = res.data.list
       total.value = res.data.total
@@ -206,7 +229,9 @@ const loadCoupons = async () => {
       ElMessage.error(res.msg || 'Failed to load promo codes')
     }
   } catch (e) {
-    ElMessage.error('Failed to load promo codes')
+    if (version === queryVersion) ElMessage.error('Failed to load promo codes')
+  } finally {
+    if (version === queryVersion) loading.value = false
   }
 }
 
@@ -366,5 +391,46 @@ onMounted(() => {
   margin: 24px 0 0 0;
   display: flex;
   justify-content: center;
+}
+
+.products-header { flex-wrap: wrap; gap: 16px; }
+.page-title { margin: 0; }
+.products-header-actions { align-items: center; flex-wrap: wrap; gap: 12px; }
+.code-filter { width: 220px; }
+.status-filter { width: 140px; }
+.coupon-details { overflow-wrap: anywhere; }
+.code-generator { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.code-generator .el-input-number { width: 92px; }
+@media (max-width: 800px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  .account-products-page { min-width: 0; padding: 0; background: transparent; }
+  .products-header, .products-section { width: 100%; min-width: 0; }
+  .products-header { display: block; margin-bottom: 16px; }
+  .products-header-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; width: 100%; margin-top: 12px; }
+  .new-code { grid-column: 2; grid-row: 1; }
+  .code-filter { grid-column: 1; grid-row: 1; }
+  .code-filter, .status-filter { width: 100%; min-width: 0; }
+  .products-header-actions :deep(.el-button), .coupon-card footer :deep(.el-button) { min-height: 42px; margin: 0; }
+  .products-header-actions :deep(.el-input__wrapper), .products-header-actions :deep(.el-select__wrapper) { min-height: 42px; box-sizing: border-box; }
+  .coupon-list { display: grid; gap: 10px; min-height: 64px; }
+  .coupon-card { min-width: 0; padding: 14px; border: 1px solid var(--el-border-color-light); border-radius: 10px; background: white; }
+  .coupon-card header, .coupon-card footer { display: flex; gap: 8px; }
+  .coupon-card header { align-items: flex-start; justify-content: space-between; }
+  .coupon-card h2 { margin: 0; min-width: 0; font-size: 16px; overflow-wrap: anywhere; }
+  .coupon-card header .el-tag { flex: none; }
+  .description { margin: 8px 0; color: var(--el-text-color-regular); font-size: 14px; overflow-wrap: anywhere; }
+  .coupon-card dl { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin: 14px 0; }
+  .coupon-card dt { color: var(--el-text-color-secondary); font-size: 12px; }
+  .coupon-card dd { margin: 4px 0 0; font-size: 14px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .coupon-card footer { border-top: 1px solid var(--el-border-color-lighter); padding-top: 12px; flex-wrap: wrap; }
+  .empty-message { text-align: center; color: var(--el-text-color-secondary); }
+  .pagination-bar :deep(.el-pagination) { flex-wrap: wrap; justify-content: center; gap: 4px; }
+  .pagination-bar :deep(.el-pagination__sizes) { margin: 0; }
+  .pagination-bar :deep(.el-select) { width: 100px; }
+  .pagination-bar :deep(button), .pagination-bar :deep(.el-select__wrapper) { min-height: 40px; }
+  .page-count { font-size: 13px; min-width: 48px; text-align: center; }
+  :global(.el-dialog.coupon-dialog) { max-height: calc(100dvh - 24px); display: flex; flex-direction: column; overflow: hidden; }
+  :global(.coupon-dialog .el-dialog__body) { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  :global(.coupon-dialog .el-dialog__footer .el-button) { min-height: 42px; }
+  .mobile-date { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; height: 40px; background: white; padding: 0 10px; color: inherit; font: inherit; border: 1px solid var(--el-border-color); border-radius: 4px; }
 }
 </style>

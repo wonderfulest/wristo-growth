@@ -77,3 +77,19 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+@media (max-width: 768px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  #app {
+    text-align: start;
+    color-scheme: light;
+  }
+
+  h1 {
+    font-size: clamp(1.45rem, 5vw, 1.9rem);
+    line-height: 1.25;
+  }
+
+  input, textarea, select {
+    font-size: 16px;
+  }
+}

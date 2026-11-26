@@ -6,7 +6,7 @@
       Failed to load deals: {{ error }}
     </div>
 
-    <el-table
+    <el-table v-if="!compact"
       v-loading="loading"
       :data="deals"
       border
@@ -80,29 +80,59 @@
       </el-table-column>
     </el-table>
 
+    <div v-else class="deal-list" v-loading="loading" :aria-busy="loading">
+      <article v-for="row in deals" :key="row.id" class="deal-card">
+        <header>
+          <AppCell :title="productTitle(row)" :subtitle="productSubtitle(row)" :image-url="productImage(row)" :link-url="productLink(row)" />
+          <el-tag>{{ row.status }}</el-tag>
+        </header>
+        <div class="deal-summary"><strong>${{ formatCurrency(row.baseAmount) }}</strong><span>{{ formatRate(row.rate) }} rate</span></div>
+        <time :datetime="row.createdAt">{{ formatTimestamp(row.createdAt) }}</time>
+        <details>
+          <summary>Order details</summary>
+          <dl>
+            <dt>Customer</dt><dd>{{ row.order?.email ? maskEmail(row.order.email) : '–' }}</dd>
+            <dt>Device</dt><dd><DeviceCell :device="deviceForRow(row)" :part-number="row.order?.partNumber || ''" /></dd>
+            <dt>Source</dt><dd>{{ row.order?.origin || '–' }}</dd>
+            <dt>Pay</dt><dd>{{ row.order?.paymentMethod || '–' }}</dd>
+            <dt>Country</dt><dd>{{ row.order?.countryCode || '–' }}</dd>
+            <dt>Bundle</dt><dd>{{ row.order?.isBundle ? 'Yes' : 'No' }}</dd>
+            <dt>Txn ID</dt><dd class="transaction-id">{{ row.order?.transactionId || '–' }}</dd>
+          </dl>
+        </details>
+      </article>
+      <p v-if="!deals.length && !loading && !error" class="empty-message">No deals</p>
+    </div>
+
     <div class="table-footer">
       <el-pagination
         background
-        layout="total, sizes, prev, pager, next, jumper"
+        :layout="compact ? 'sizes, prev, slot, next' : 'total, sizes, prev, pager, next, jumper'"
         :total="total"
         :page-size="pageSize"
         :current-page="pageNum"
         :page-sizes="[10, 20, 50]"
         @current-change="handlePageChange"
         @size-change="handleSizeChange"
-      />
+      ><span v-if="compact" class="page-count" aria-live="polite">{{ pageNum }} / {{ Math.max(1, Math.ceil(total / pageSize)) }}</span></el-pagination>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import AppCell from '@/components/common/AppCell.vue'
 import DeviceCell from '@/components/common/DeviceCell.vue'
 import { getMyDealsPage, type PromoterDealsPageQueryDTO, type PromoterDealItemVO } from '@/api/promoter-stats'
 import { getGarminDevices } from '@/api/devices'
 import type { ApiResponse, PageResponse } from '@/types/api'
 import type { GarminDeviceBaseVO } from '@/types/device'
+
+const viewport = window.matchMedia('(max-width: 800px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape)')
+const compact = ref(viewport.matches)
+const syncViewport = () => { compact.value = viewport.matches }
+onMounted(() => viewport.addEventListener('change', syncViewport))
+onBeforeUnmount(() => viewport.removeEventListener('change', syncViewport))
 
 const deals = ref<PromoterDealItemVO[]>([])
 const loading = ref(false)
@@ -277,91 +307,29 @@ onMounted(() => {
 .table-footer {
   color: #6c757d;
 }
-.detail-item .v {
-  color: #212529;
-  font-weight: 500;
-  word-break: break-all;
-  text-align: right;
+@media (max-width: 800px), (max-width: 960px) and (max-height: 500px) and (orientation: landscape) {
+  .account-page { min-width: 0; padding: 0; background: transparent; }
+  .page-title { margin: 0 0 14px; }
+  .deal-list { display: grid; gap: 10px; min-height: 64px; }
+  .deal-card { min-width: 0; padding: 14px; border: 1px solid var(--el-border-color-light); border-radius: 10px; background: white; }
+  .deal-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .deal-card header :deep(.app-cell), .deal-card :deep(.app-info), .deal-card :deep(.device-info) { min-width: 0; overflow-wrap: anywhere; }
+  .deal-card header :deep(img), .deal-card header .el-tag { flex: none; }
+  .deal-summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin: 16px 0 4px; }
+  .deal-summary strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .deal-summary span, .deal-card time { color: var(--el-text-color-secondary); font-size: 13px; }
+  .deal-card details { margin-top: 12px; border-top: 1px solid var(--el-border-color-lighter); }
+  .deal-card summary { padding: 12px 0 4px; min-height: 36px; line-height: 22px; cursor: pointer; font-weight: 600; font-size: 14px; }
+  .deal-card dl { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 10px 16px; margin: 10px 0 0; font-size: 14px; }
+  .deal-card dt { color: var(--el-text-color-secondary); }
+  .deal-card dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .transaction-id { font-family: ui-monospace, monospace; }
+  .empty-message { color: var(--el-text-color-secondary); text-align: center; }
+  .table-footer { margin-top: 20px; }
+  .table-footer :deep(.el-pagination) { flex-wrap: wrap; gap: 4px; justify-content: center; }
+  .table-footer :deep(.el-select) { width: 100px; }
+  .table-footer :deep(.el-pagination__sizes) { margin: 0; }
+  .table-footer :deep(button), .table-footer :deep(.el-select__wrapper) { min-height: 40px; }
+  .page-count { min-width: 48px; text-align: center; font-size: 13px; }
 }
-
-.nested-section {
-  margin-top: 16px;
-  padding-top: 8px;
-  border-top: 2px solid #f1f3f5;
-}
-.nested-title {
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  color: #495057;
-}
-.nested-content {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-.nested-thumb {
-  width: 64px;
-  height: 64px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-}
-.nested-fields > div { padding: 2px 0; }
-
-.bundle-products {
-  margin-top: 10px;
-}
-.bp-title {
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 6px;
-}
-.bundle-products ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.bundle-products li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px dashed #e9ecef;
-}
-.bp-thumb {
-  width: 28px;
-  height: 28px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-}
-.bp-name { color: #212529; }
-
-/* preserve newlines and wrapping for multiline text in descriptions */
-.multiline {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-@media (max-width: 768px) {
-  .purchase-table {
-    font-size: 12px;
-  }
-  
-  .purchase-table th,
-  .purchase-table td {
-    padding: 8px 12px;
-  }
-  
-  .product-image,
-  .no-image-placeholder {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .pagination-container {
-    flex-direction: column;
-    gap: 12px;
-  }
-}
-</style> 
+</style>
