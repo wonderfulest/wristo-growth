@@ -9,7 +9,6 @@
         <input ref="avatarInputRef" type="file" accept="image/*" hidden @change="onAvatarFileChange" />
         <div class="hero-name">{{ form.nickname || form.username || 'Wristo' }}</div>
         <div class="hero-email">{{ form.email || '—' }}</div>
-        <button type="button" class="logout-button" @click="logout">{{ t('退出登录', 'Log out') }}</button>
       </div>
 
       <template v-if="userInfo">
@@ -73,8 +72,6 @@
 
 <script setup lang="ts">
 import { t } from '@/i18n'
-import { useUserStore } from '@/store/user'
-import { redirectToSsoLogin } from '@/utils/ssoRedirect'
 import { ref, reactive, onMounted } from 'vue'
 import { getPromUserInfo, updatePromUserInfo, uploadAvatar } from '@/api/user'
 import type { PromUserVO, PromUserUpdateDTO, ApiResponse } from '@/types/api'
@@ -189,10 +186,6 @@ async function handleSave() {
     saving.value = false
   }
 }
-async function logout() {
-  await useUserStore().logout()
-  redirectToSsoLogin('growth')
-}
 </script>
 
 <style scoped>
@@ -261,15 +254,6 @@ async function logout() {
 .hero-email {
   color: #86868b;
   font-size: 0.9375rem;
-}
-.logout-button {
-  min-height: 44px;
-  padding: 0 18px;
-  color: #255a42;
-  background: transparent;
-  border: 0;
-  font: inherit;
-  cursor: pointer;
 }
 .section {
   display: flex;

@@ -235,8 +235,21 @@ dialog p { color: #56625c; font-size: .9rem; }
 .stepper { display: grid; grid-template-columns: 56px 1fr 56px; align-items: stretch; border: 1px solid #cfd8d1; border-radius: 8px; overflow: hidden; }
 .stepper button { background: #f5f7f5; border-radius: 0; font-size: 1.5rem; }
 .stepper > div { display: flex; justify-content: center; align-items: center; min-width: 0; font-size: 1.75rem; color: var(--green); font-weight: 700; }
-.stepper input { width: 2.2ch; text-align: right; color: inherit; border: 0; font: inherit; appearance: textfield; }
-.stepper input::-webkit-inner-spin-button { appearance: none; }
+.stepper input {
+  box-sizing: content-box;
+  flex: none;
+  width: 3ch;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  appearance: textfield;
+}
+.stepper input::-webkit-inner-spin-button,
+.stepper input::-webkit-outer-spin-button { appearance: none; margin: 0; }
 .hint { text-align: center; margin: 6px 0 14px; }
 .example { background: #f2f3f2; border-radius: 10px; padding: 12px; margin-top: 12px; }
 .example .split { background: transparent; padding-bottom: 0; }
